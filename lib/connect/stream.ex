@@ -26,7 +26,7 @@ defmodule Connect.Stream do
   @spec send(t(), struct()) :: {:ok, t()} | {:error, term()}
   def send(%__MODULE__{conn: conn, codec: codec} = stream, data) do
     encoded = Connect.Codec.encode(data, codec)
-    envelope = Connect.Envelope.wrap_data(encoded)
+    envelope = Connect.Envelope.Writer.data(encoded)
 
     case Plug.Conn.chunk(conn, envelope) do
       {:ok, new_conn} -> {:ok, %{stream | conn: new_conn}}

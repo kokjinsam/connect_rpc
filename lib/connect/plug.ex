@@ -7,6 +7,8 @@ defmodule Connect.Plug do
 
     * `:service` - the module using `Connect.Service` (provides `__rpc_calls__/0`)
     * `:impl` - the module implementing the RPC handler functions
+    * `:require_version` - whether to require `Connect-Protocol-Version: 1`
+      header (default: `true`)
 
   ## Example
 
@@ -27,6 +29,7 @@ defmodule Connect.Plug do
   def init(opts) do
     service = Keyword.fetch!(opts, :service)
     impl = Keyword.fetch!(opts, :impl)
+    require_version = Keyword.get(opts, :require_version, true)
 
     impl_lookup = build_impl_lookup(impl)
 
@@ -51,11 +54,11 @@ defmodule Connect.Plug do
          }}
       end)
 
-    %{impl: impl, rpc_map: rpc_map}
+    %{impl: impl, rpc_map: rpc_map, require_version: require_version}
   end
 
   @impl true
-  def call(conn, %{rpc_map: rpc_map, impl: impl}) do
+  def call(conn, %{rpc_map: rpc_map, impl: impl} = config) do
     method_name = List.last(conn.path_info)
 
     case Map.get(rpc_map, method_name) do
@@ -63,12 +66,14 @@ defmodule Connect.Plug do
         Error.send_unary(conn, Error.new("unimplemented", "Method not found"))
 
       rpc_def ->
-        handle_rpc(conn, impl, rpc_def)
+        handle_rpc(conn, impl, rpc_def, config)
     end
   end
 
-  defp handle_rpc(conn, impl, rpc) do
-    with {:ok, spec} <- Protocol.parse_content_type(conn),
+  defp handle_rpc(conn, impl, rpc, config) do
+    with :ok <- Protocol.validate_method(conn),
+         :ok <- Protocol.validate_protocol_version(conn, required: config.require_version),
+         {:ok, spec} <- Protocol.parse_content_type(conn),
          :ok <- validate_wire_mode(spec.wire_mode, rpc.server_streaming?) do
       case read_raw_body(conn) do
         {:ok, body, conn} ->
@@ -82,10 +87,32 @@ defmodule Connect.Plug do
           Error.send_unary(conn, Error.new("data_loss", "Unable to read request body"))
       end
     else
+      {:error, :method_not_allowed} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          405,
+          Jason.encode!(%{"code" => "unimplemented", "message" => "Only POST is supported"})
+        )
+
+      {:error, :unsupported_protocol_version} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          400,
+          Jason.encode!(%{
+            "code" => "invalid_argument",
+            "message" => "missing required header: set Connect-Protocol-Version to \"1\""
+          })
+        )
+
       {:error, :unsupported_media_type} ->
         conn
         |> put_resp_content_type("application/json")
-        |> send_resp(415, Jason.encode!(Error.new("unknown", "Unsupported media type")))
+        |> send_resp(
+          415,
+          Jason.encode!(%{"code" => "unknown", "message" => "Unsupported media type"})
+        )
 
       {:error, :wire_mode_mismatch} ->
         Error.send_unary(
@@ -101,12 +128,17 @@ defmodule Connect.Plug do
     if rpc.impl_function do
       with {:ok, request} <- Codec.decode(body, rpc.request_type, codec) do
         try do
-          response = apply(impl, rpc.impl_function, [request, nil])
-          encoded = Codec.encode(response, codec)
+          case apply(impl, rpc.impl_function, [request, nil]) do
+            %Error{} = error ->
+              Error.send_unary(conn, error)
 
-          conn
-          |> put_resp_content_type(Protocol.mime_type(codec))
-          |> send_resp(200, encoded)
+            response ->
+              encoded = Codec.encode(response, codec)
+
+              conn
+              |> put_resp_content_type(Protocol.mime_type(codec))
+              |> send_resp(200, encoded)
+          end
         rescue
           e ->
             Logger.error("ConnectRPC unary handler error: #{Exception.message(e)}")
@@ -141,6 +173,9 @@ defmodule Connect.Plug do
             {:ok, %Stream{conn: final_conn}} ->
               finish_stream(final_conn)
 
+            {:error, %Error{} = error} ->
+              finish_stream(stream.conn, Error.to_end_stream(error))
+
             other ->
               Logger.warning(
                 "ConnectRPC: Streaming handler returned unexpected value: #{inspect(other)}"
@@ -172,18 +207,12 @@ defmodule Connect.Plug do
   # --- Helpers ---
 
   defp decode_streaming_request(body, request_type, codec) do
-    case Envelope.decode_frame(body) do
-      {:ok, %{end_stream?: false, compressed?: false, payload: payload}, _rest} ->
+    case Connect.Envelope.Reader.read_single_message(body, max_bytes: @max_body_bytes) do
+      {:ok, payload, _end_stream} ->
         Codec.decode(payload, request_type, codec)
 
-      {:ok, %{end_stream?: true}, _rest} ->
-        {:error, :unexpected_end_stream}
-
-      {:ok, %{compressed?: true}, _rest} ->
-        {:error, :compression_not_supported}
-
-      {:error, reason} ->
-        {:error, reason}
+      {:error, _} = err ->
+        err
     end
   end
 

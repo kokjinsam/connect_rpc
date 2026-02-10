@@ -19,7 +19,7 @@ defmodule Connect.Router do
 
   defmacro connect_service(path, opts) do
     quote do
-      forward unquote(path), Connect.Plug, unquote(opts)
+      forward(unquote(path), Connect.Plug, unquote(opts))
     end
   end
 end
