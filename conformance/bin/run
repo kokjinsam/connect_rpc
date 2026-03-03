@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+CONFORMANCE_DIR="$ROOT_DIR/conformance"
+CONFIG_PATH="$CONFORMANCE_DIR/config/server.yaml"
+SERVER_BIN="$CONFORMANCE_DIR/bin/server"
+KNOWN_FAILING_PATH="$CONFORMANCE_DIR/known-failing/server.txt"
+VERSION="${CONNECT_CONFORMANCE_VERSION:-v1.0.5}"
+CACHE_DIR="$CONFORMANCE_DIR/.cache/$VERSION"
+RUNNER_BIN="$CACHE_DIR/connectconformance"
+
+if [[ ! -f "$CONFIG_PATH" ]]; then
+  echo "missing conformance config: $CONFIG_PATH" >&2
+  exit 1
+fi
+
+if [[ ! -x "$SERVER_BIN" ]]; then
+  echo "server bootstrap is not executable: $SERVER_BIN" >&2
+  exit 1
+fi
+
+map_arch() {
+  local os="$1"
+  local arch="$2"
+
+  case "$os/$arch" in
+    Darwin/arm64) echo "arm64" ;;
+    Darwin/x86_64) echo "x86_64" ;;
+    Linux/x86_64) echo "x86_64" ;;
+    Linux/aarch64) echo "aarch64" ;;
+    Linux/arm64) echo "aarch64" ;;
+    *)
+      echo "unsupported platform for connectconformance: $os/$arch" >&2
+      return 1
+      ;;
+  esac
+}
+
+download_runner() {
+  local os
+  local arch
+  local asset_arch
+  local url
+  local archive
+
+  os="$(uname -s)"
+  arch="$(uname -m)"
+  asset_arch="$(map_arch "$os" "$arch")"
+
+  mkdir -p "$CACHE_DIR"
+  archive="$(mktemp "${TMPDIR:-/tmp}/connectconformance.XXXXXX.tar.gz")"
+  trap 'rm -f "$archive"' EXIT
+
+  url="https://github.com/connectrpc/conformance/releases/download/${VERSION}/connectconformance-${VERSION}-${os}-${asset_arch}.tar.gz"
+  curl -fsSL "$url" -o "$archive"
+  tar -xzf "$archive" -C "$CACHE_DIR"
+  chmod +x "$RUNNER_BIN"
+}
+
+if [[ ! -x "$RUNNER_BIN" ]]; then
+  download_runner
+fi
+
+cd "$ROOT_DIR"
+MIX_ENV=test mix deps.get
+MIX_ENV=test mix compile
+
+args=(
+  "$RUNNER_BIN"
+  --mode
+  server
+  --conf
+  "$CONFIG_PATH"
+)
+
+if [[ -f "$KNOWN_FAILING_PATH" ]]; then
+  args+=(--known-failing "@$KNOWN_FAILING_PATH")
+fi
+
+if [[ $# -gt 0 ]]; then
+  args+=("$@")
+fi
+
+args+=(-- "$SERVER_BIN")
+
+exec "${args[@]}"

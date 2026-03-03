@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27.3"
+          elixir-version: "1.19.1"
+
+      - run: mix deps.get
+      - run: mix test
+      - run: cd examples/greeter && mix deps.get && mix test
+
+  conformance:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27.3"
+          elixir-version: "1.19.1"
+
+      - run: chmod +x conformance/bin/run conformance/bin/server
+      - run: ./conformance/bin/run

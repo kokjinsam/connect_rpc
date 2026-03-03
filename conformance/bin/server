@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+BUILD_DIR="$ROOT_DIR/_build/test/lib"
+
+if [[ ! -d "$BUILD_DIR/connect_rpc/ebin" ]]; then
+  echo "conformance server is not compiled. Run conformance/bin/run first." >&2
+  exit 1
+fi
+
+cd "$ROOT_DIR"
+export MIX_ENV=test
+
+ebin_paths=("$BUILD_DIR"/*/ebin)
+elixir_args=(--no-halt)
+
+for ebin_path in "${ebin_paths[@]}"; do
+  elixir_args+=(-pa "$ebin_path")
+done
+
+elixir_args+=(-e 'ConnectRPC.Conformance.ServerCLI.main()')
+
+exec elixir "${elixir_args[@]}"
