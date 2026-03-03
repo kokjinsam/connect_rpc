@@ -6,12 +6,14 @@ defmodule Google.Rpc.Status do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.FieldDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.DescriptorProto{
       name: "Status",
       field: [
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "code",
           extendee: nil,
           number: 1,
@@ -25,7 +27,7 @@ defmodule Google.Rpc.Status do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "message",
           extendee: nil,
           number: 2,
@@ -39,7 +41,7 @@ defmodule Google.Rpc.Status do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "details",
           extendee: nil,
           number: 3,
@@ -66,7 +68,7 @@ defmodule Google.Rpc.Status do
     }
   end
 
-  field :code, 1, type: :int32
-  field :message, 2, type: :string
-  field :details, 3, repeated: true, type: Google.Protobuf.Any
+  field(:code, 1, type: :int32)
+  field(:message, 2, type: :string)
+  field(:details, 3, repeated: true, type: Google.Protobuf.Any)
 end

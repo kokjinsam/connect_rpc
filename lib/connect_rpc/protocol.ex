@@ -1,10 +1,11 @@
 defmodule ConnectRPC.Protocol do
   @moduledoc false
 
-  alias ConnectRPC.Error
-  alias ConnectRPC.Codec.{JSON, Proto}
-
   import Plug.Conn
+
+  alias ConnectRPC.Codec.JSON
+  alias ConnectRPC.Codec.Proto
+  alias ConnectRPC.Error
 
   @status_by_code %{
     canceled: 499,
@@ -45,12 +46,10 @@ defmodule ConnectRPC.Protocol do
         :ok
 
       [] ->
-        {:error, Error.new(:invalid_argument, "Missing required Connect-Protocol-Version header"),
-         400}
+        {:error, Error.new(:invalid_argument, "Missing required Connect-Protocol-Version header"), 400}
 
       [value | _rest] ->
-        {:error,
-         Error.new(:invalid_argument, "Invalid Connect-Protocol-Version header: #{value}"), 400}
+        {:error, Error.new(:invalid_argument, "Invalid Connect-Protocol-Version header: #{value}"), 400}
     end
   end
 
@@ -173,8 +172,7 @@ defmodule ConnectRPC.Protocol do
     %{"type" => type, "value" => Base.encode64(value)}
   end
 
-  defp encode_detail(%{"type" => type, "value" => value})
-       when is_binary(type) and is_binary(value) do
+  defp encode_detail(%{"type" => type, "value" => value}) when is_binary(type) and is_binary(value) do
     %{"type" => type, "value" => Base.encode64(value)}
   end
 
@@ -186,18 +184,16 @@ defmodule ConnectRPC.Protocol do
   end
 
   defp detail_type(module) do
-    cond do
-      function_exported?(module, :full_name, 0) ->
-        case module.full_name() do
-          name when is_binary(name) and name != "" ->
-            name
+    if function_exported?(module, :full_name, 0) do
+      case module.full_name() do
+        name when is_binary(name) and name != "" ->
+          name
 
-          _other ->
-            module |> Module.split() |> Enum.join(".")
-        end
-
-      true ->
-        module |> Module.split() |> Enum.join(".")
+        _other ->
+          module |> Module.split() |> Enum.join(".")
+      end
+    else
+      module |> Module.split() |> Enum.join(".")
     end
   end
 end

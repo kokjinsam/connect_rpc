@@ -2,7 +2,8 @@ defmodule ConnectRPC.Codec.ProtoTest do
   use ExUnit.Case, async: true
 
   alias ConnectRPC.Codec.Proto
-  alias ConnectRPC.TestProto.{EchoRequest, EchoResponse}
+  alias ConnectRPC.TestProto.EchoRequest
+  alias ConnectRPC.TestProto.EchoResponse
 
   test "encodes and decodes protobuf messages" do
     request = %EchoRequest{message: "hello"}

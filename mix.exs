@@ -38,13 +38,16 @@ defmodule ConnectRPC.MixProject do
 
   defp deps do
     [
-      {:plug, "~> 1.14"},
       {:jason, "~> 1.4"},
+      {:plug, "~> 1.14"},
       {:protobuf, "~> 0.14"},
       {:telemetry, "~> 1.0"},
+
+      # Dev/test
+      {:bandit, "~> 1.7", only: :test},
       {:ex_doc, "~> 0.38", only: :dev, runtime: false},
       {:plug_cowboy, "~> 2.7", only: :test},
-      {:bandit, "~> 1.7", only: :test}
+      {:styler, "~> 1.11", only: [:dev, :test], runtime: false}
     ]
   end
 

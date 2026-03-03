@@ -12,19 +12,15 @@ defmodule ConnectRPC.Codec.Proto do
 
   @spec decode(binary(), module()) :: {:ok, struct()} | {:error, decode_error()}
   def decode(payload, module) when is_binary(payload) and is_atom(module) do
-    try do
-      {:ok, module.decode(payload)}
-    rescue
-      exception -> {:error, exception}
-    end
+    {:ok, module.decode(payload)}
+  rescue
+    exception -> {:error, exception}
   end
 
   @spec encode(struct()) :: {:ok, binary()} | {:error, encode_error()}
   def encode(%module{} = struct) when is_atom(module) do
-    try do
-      {:ok, module.encode(struct)}
-    rescue
-      exception -> {:error, exception}
-    end
+    {:ok, module.encode(struct)}
+  rescue
+    exception -> {:error, exception}
   end
 end

@@ -42,9 +42,7 @@ defmodule ConnectRPC.Handler do
       end)
 
     Enum.each(streaming_methods, fn method ->
-      IO.warn(
-        "Skipping streaming method #{method.name} - streaming is not yet supported in connect_rpc v0.1.0"
-      )
+      IO.warn("Skipping streaming method #{method.name} - streaming is not yet supported in connect_rpc v0.1.0")
     end)
 
     escaped_methods = Macro.escape(unary_methods)
@@ -92,8 +90,7 @@ defmodule ConnectRPC.Handler do
   def extract_service_metadata!(service_module) when is_atom(service_module) do
     cond do
       function_exported?(service_module, :__connect_rpc_service__, 0) ->
-        service_module.__connect_rpc_service__()
-        |> normalize_connect_rpc_service(service_module)
+        normalize_connect_rpc_service(service_module.__connect_rpc_service__(), service_module)
 
       function_exported?(service_module, :__rpcs__, 0) ->
         normalize_grpc_service(service_module)
@@ -194,7 +191,8 @@ defmodule ConnectRPC.Handler do
 
   defp normalize_method(rpc, service_module) when is_map(rpc) do
     method_name =
-      map_get_any(rpc, [:name, "name", :method, "method"])
+      rpc
+      |> map_get_any([:name, "name", :method, "method"])
       |> to_string()
 
     request =
@@ -236,10 +234,7 @@ defmodule ConnectRPC.Handler do
     )
   end
 
-  defp normalize_method(
-         {name, request, response, client_streaming?, server_streaming?},
-         service_module
-       ) do
+  defp normalize_method({name, request, response, client_streaming?, server_streaming?}, service_module) do
     normalize_method(
       %{
         name: name,
@@ -272,22 +267,20 @@ defmodule ConnectRPC.Handler do
       |> Enum.map(&Macro.camelize/1)
       |> Module.concat()
 
-    cond do
-      Code.ensure_loaded?(candidate) ->
-        candidate
+    if Code.ensure_loaded?(candidate) do
+      candidate
+    else
+      segments = String.split(cleaned_name, ".")
+      type_leaf = segments |> List.last() |> Macro.camelize()
+      namespace = service_module |> Module.split() |> Enum.drop(-1)
+      nested_candidate = Module.concat(namespace ++ [type_leaf])
 
-      true ->
-        segments = String.split(cleaned_name, ".")
-        type_leaf = List.last(segments) |> Macro.camelize()
-        namespace = service_module |> Module.split() |> Enum.drop(-1)
-        nested_candidate = Module.concat(namespace ++ [type_leaf])
-
-        if Code.ensure_loaded?(nested_candidate) do
-          nested_candidate
-        else
-          raise ArgumentError,
-                "Unable to resolve protobuf type #{inspect(type_name)} for service #{inspect(service_module)}"
-        end
+      if Code.ensure_loaded?(nested_candidate) do
+        nested_candidate
+      else
+        raise ArgumentError,
+              "Unable to resolve protobuf type #{inspect(type_name)} for service #{inspect(service_module)}"
+      end
     end
   end
 

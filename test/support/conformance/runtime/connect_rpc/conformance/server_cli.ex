@@ -2,7 +2,8 @@ defmodule ConnectRPC.Conformance.ServerCLI do
   @moduledoc false
 
   alias ConnectRPC.Conformance.Server
-  alias Connectrpc.Conformance.V1.{ServerCompatRequest, ServerCompatResponse}
+  alias Connectrpc.Conformance.V1.ServerCompatRequest
+  alias Connectrpc.Conformance.V1.ServerCompatResponse
 
   @max_request_size 1_048_576
 
@@ -34,9 +35,8 @@ defmodule ConnectRPC.Conformance.ServerCLI do
   defp read_request do
     with {:ok, <<size::32-big-unsigned-integer>>} <- read_exact(4),
          :ok <- validate_request_size(size),
-         {:ok, payload} <- read_exact(size),
-         {:ok, request} <- decode_request(payload) do
-      {:ok, request}
+         {:ok, payload} <- read_exact(size) do
+      decode_request(payload)
     end
   end
 
@@ -47,11 +47,9 @@ defmodule ConnectRPC.Conformance.ServerCLI do
   end
 
   defp decode_request(payload) do
-    try do
-      {:ok, ServerCompatRequest.decode(payload)}
-    rescue
-      exception -> {:error, {:invalid_request, exception}}
-    end
+    {:ok, ServerCompatRequest.decode(payload)}
+  rescue
+    exception -> {:error, {:invalid_request, exception}}
   end
 
   defp read_exact(0), do: {:ok, <<>>}
@@ -73,13 +71,11 @@ defmodule ConnectRPC.Conformance.ServerCLI do
   end
 
   defp write_response(%ServerCompatResponse{} = response) do
-    try do
-      payload = ServerCompatResponse.encode(response)
-      frame = <<byte_size(payload)::32-big-unsigned-integer, payload::binary>>
-      IO.binwrite(:stdio, frame)
-    rescue
-      exception -> {:error, {:write_error, exception}}
-    end
+    payload = ServerCompatResponse.encode(response)
+    frame = <<byte_size(payload)::32-big-unsigned-integer, payload::binary>>
+    IO.binwrite(:stdio, frame)
+  rescue
+    exception -> {:error, {:write_error, exception}}
   end
 
   defp format_reason({:invalid_request, exception}), do: Exception.message(exception)

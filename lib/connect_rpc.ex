@@ -5,11 +5,13 @@ defmodule ConnectRPC do
 
   @behaviour Plug
 
-  require Logger
-
-  alias ConnectRPC.{Error, Protocol, Telemetry}
-
   import Plug.Conn
+
+  alias ConnectRPC.Error
+  alias ConnectRPC.Protocol
+  alias ConnectRPC.Telemetry
+
+  require Logger
 
   @type method_metadata :: %{
           required(:name) => String.t(),
@@ -48,7 +50,7 @@ defmodule ConnectRPC do
         raise ArgumentError, "Expected handler module #{inspect(handler)} to be available"
     end
 
-    unless function_exported?(handler, :__connect_rpc__, 1) do
+    if !function_exported?(handler, :__connect_rpc__, 1) do
       raise ArgumentError,
             "Expected handler #{inspect(handler)} to `use ConnectRPC.Handler` and export __connect_rpc__/1"
     end
@@ -115,8 +117,7 @@ defmodule ConnectRPC do
     end
   end
 
-  defp extract_method_name(%Plug.Conn{path_info: [method_name]})
-       when byte_size(method_name) > 0 do
+  defp extract_method_name(%Plug.Conn{path_info: [method_name]}) when byte_size(method_name) > 0 do
     {:ok, method_name}
   end
 
@@ -181,14 +182,7 @@ defmodule ConnectRPC do
     end
   end
 
-  defp handle_handler_result(
-         conn,
-         {:ok, response_struct},
-         method,
-         codec,
-         metadata,
-         started_at
-       ) do
+  defp handle_handler_result(conn, {:ok, response_struct}, method, codec, metadata, started_at) do
     case typecheck_response(response_struct, method.response) do
       :ok ->
         encode_and_send_success(conn, response_struct, codec, metadata, started_at, [])
@@ -200,14 +194,7 @@ defmodule ConnectRPC do
     end
   end
 
-  defp handle_handler_result(
-         conn,
-         {:ok, response_struct, response_meta},
-         method,
-         codec,
-         metadata,
-         started_at
-       ) do
+  defp handle_handler_result(conn, {:ok, response_struct, response_meta}, method, codec, metadata, started_at) do
     headers = normalize_response_headers(response_meta)
 
     case typecheck_response(response_struct, method.response) do
@@ -221,27 +208,13 @@ defmodule ConnectRPC do
     end
   end
 
-  defp handle_handler_result(
-         conn,
-         {:error, %Error{} = error},
-         _method,
-         _codec,
-         metadata,
-         started_at
-       ) do
+  defp handle_handler_result(conn, {:error, %Error{} = error}, _method, _codec, metadata, started_at) do
     Telemetry.emit_handler_stop(started_at, metadata)
     log_debug(metadata, started_at, Atom.to_string(error.code))
     Protocol.send_error(conn, error)
   end
 
-  defp handle_handler_result(
-         conn,
-         {:error, %Error{} = error, response_meta},
-         _method,
-         _codec,
-         metadata,
-         started_at
-       ) do
+  defp handle_handler_result(conn, {:error, %Error{} = error, response_meta}, _method, _codec, metadata, started_at) do
     headers = normalize_response_headers(response_meta)
 
     Telemetry.emit_handler_stop(started_at, metadata)
@@ -290,7 +263,7 @@ defmodule ConnectRPC do
   defp do_read_full_body(conn, read_body_fun, read_body_opts, acc) do
     case read_body_fun.(conn, read_body_opts) do
       {:ok, chunk, conn} ->
-        body = Enum.reverse([chunk | acc]) |> IO.iodata_to_binary()
+        body = [chunk | acc] |> Enum.reverse() |> IO.iodata_to_binary()
         {:ok, body, conn}
 
       {:more, chunk, conn} ->
@@ -327,17 +300,17 @@ defmodule ConnectRPC do
   end
 
   defp format_ms(value) do
-    value
-    |> :erlang.float_to_binary(decimals: 1)
+    :erlang.float_to_binary(value, decimals: 1)
   end
 
   defp normalize_response_headers(nil), do: []
   defp normalize_response_headers(%{} = meta), do: meta[:headers] || meta["headers"] || []
 
   defp normalize_response_headers(meta) when is_list(meta) do
-    case Keyword.keyword?(meta) do
-      true -> Keyword.get(meta, :headers, [])
-      false -> meta
+    if Keyword.keyword?(meta) do
+      Keyword.get(meta, :headers, [])
+    else
+      meta
     end
   end
 
@@ -363,13 +336,11 @@ defmodule ConnectRPC do
     [{String.downcase(name), value}]
   end
 
-  defp normalize_header_entry(%{name: name, value: values})
-       when is_binary(name) and is_list(values) do
+  defp normalize_header_entry(%{name: name, value: values}) when is_binary(name) and is_list(values) do
     Enum.map(values, fn value -> {String.downcase(name), to_string(value)} end)
   end
 
-  defp normalize_header_entry(%{"name" => name, "value" => values})
-       when is_binary(name) and is_list(values) do
+  defp normalize_header_entry(%{"name" => name, "value" => values}) when is_binary(name) and is_list(values) do
     Enum.map(values, fn value -> {String.downcase(name), to_string(value)} end)
   end
 

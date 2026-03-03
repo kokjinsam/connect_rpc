@@ -7,30 +7,32 @@ defmodule Connectrpc.Conformance.V1.HTTPVersion do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.EnumValueDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.EnumDescriptorProto{
       name: "HTTPVersion",
       value: [
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "HTTP_VERSION_UNSPECIFIED",
           number: 0,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "HTTP_VERSION_1",
           number: 1,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "HTTP_VERSION_2",
           number: 2,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "HTTP_VERSION_3",
           number: 3,
           options: nil,
@@ -44,10 +46,10 @@ defmodule Connectrpc.Conformance.V1.HTTPVersion do
     }
   end
 
-  field :HTTP_VERSION_UNSPECIFIED, 0
-  field :HTTP_VERSION_1, 1
-  field :HTTP_VERSION_2, 2
-  field :HTTP_VERSION_3, 3
+  field(:HTTP_VERSION_UNSPECIFIED, 0)
+  field(:HTTP_VERSION_1, 1)
+  field(:HTTP_VERSION_2, 2)
+  field(:HTTP_VERSION_3, 3)
 end
 
 defmodule Connectrpc.Conformance.V1.Protocol do
@@ -59,30 +61,32 @@ defmodule Connectrpc.Conformance.V1.Protocol do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.EnumValueDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.EnumDescriptorProto{
       name: "Protocol",
       value: [
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "PROTOCOL_UNSPECIFIED",
           number: 0,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "PROTOCOL_CONNECT",
           number: 1,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "PROTOCOL_GRPC",
           number: 2,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "PROTOCOL_GRPC_WEB",
           number: 3,
           options: nil,
@@ -96,10 +100,10 @@ defmodule Connectrpc.Conformance.V1.Protocol do
     }
   end
 
-  field :PROTOCOL_UNSPECIFIED, 0
-  field :PROTOCOL_CONNECT, 1
-  field :PROTOCOL_GRPC, 2
-  field :PROTOCOL_GRPC_WEB, 3
+  field(:PROTOCOL_UNSPECIFIED, 0)
+  field(:PROTOCOL_CONNECT, 1)
+  field(:PROTOCOL_GRPC, 2)
+  field(:PROTOCOL_GRPC_WEB, 3)
 end
 
 defmodule Connectrpc.Conformance.V1.Codec do
@@ -111,30 +115,32 @@ defmodule Connectrpc.Conformance.V1.Codec do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.EnumValueDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.EnumDescriptorProto{
       name: "Codec",
       value: [
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODEC_UNSPECIFIED",
           number: 0,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODEC_PROTO",
           number: 1,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODEC_JSON",
           number: 2,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODEC_TEXT",
           number: 3,
           options: %Google.Protobuf.EnumValueOptions{
@@ -156,10 +162,10 @@ defmodule Connectrpc.Conformance.V1.Codec do
     }
   end
 
-  field :CODEC_UNSPECIFIED, 0
-  field :CODEC_PROTO, 1
-  field :CODEC_JSON, 2
-  field :CODEC_TEXT, 3
+  field(:CODEC_UNSPECIFIED, 0)
+  field(:CODEC_PROTO, 1)
+  field(:CODEC_JSON, 2)
+  field(:CODEC_TEXT, 3)
 end
 
 defmodule Connectrpc.Conformance.V1.Compression do
@@ -171,48 +177,50 @@ defmodule Connectrpc.Conformance.V1.Compression do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.EnumValueDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.EnumDescriptorProto{
       name: "Compression",
       value: [
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "COMPRESSION_UNSPECIFIED",
           number: 0,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "COMPRESSION_IDENTITY",
           number: 1,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "COMPRESSION_GZIP",
           number: 2,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "COMPRESSION_BR",
           number: 3,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "COMPRESSION_ZSTD",
           number: 4,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "COMPRESSION_DEFLATE",
           number: 5,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "COMPRESSION_SNAPPY",
           number: 6,
           options: nil,
@@ -226,13 +234,13 @@ defmodule Connectrpc.Conformance.V1.Compression do
     }
   end
 
-  field :COMPRESSION_UNSPECIFIED, 0
-  field :COMPRESSION_IDENTITY, 1
-  field :COMPRESSION_GZIP, 2
-  field :COMPRESSION_BR, 3
-  field :COMPRESSION_ZSTD, 4
-  field :COMPRESSION_DEFLATE, 5
-  field :COMPRESSION_SNAPPY, 6
+  field(:COMPRESSION_UNSPECIFIED, 0)
+  field(:COMPRESSION_IDENTITY, 1)
+  field(:COMPRESSION_GZIP, 2)
+  field(:COMPRESSION_BR, 3)
+  field(:COMPRESSION_ZSTD, 4)
+  field(:COMPRESSION_DEFLATE, 5)
+  field(:COMPRESSION_SNAPPY, 6)
 end
 
 defmodule Connectrpc.Conformance.V1.StreamType do
@@ -244,42 +252,44 @@ defmodule Connectrpc.Conformance.V1.StreamType do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.EnumValueDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.EnumDescriptorProto{
       name: "StreamType",
       value: [
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "STREAM_TYPE_UNSPECIFIED",
           number: 0,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "STREAM_TYPE_UNARY",
           number: 1,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "STREAM_TYPE_CLIENT_STREAM",
           number: 2,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "STREAM_TYPE_SERVER_STREAM",
           number: 3,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "STREAM_TYPE_HALF_DUPLEX_BIDI_STREAM",
           number: 4,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "STREAM_TYPE_FULL_DUPLEX_BIDI_STREAM",
           number: 5,
           options: nil,
@@ -293,12 +303,12 @@ defmodule Connectrpc.Conformance.V1.StreamType do
     }
   end
 
-  field :STREAM_TYPE_UNSPECIFIED, 0
-  field :STREAM_TYPE_UNARY, 1
-  field :STREAM_TYPE_CLIENT_STREAM, 2
-  field :STREAM_TYPE_SERVER_STREAM, 3
-  field :STREAM_TYPE_HALF_DUPLEX_BIDI_STREAM, 4
-  field :STREAM_TYPE_FULL_DUPLEX_BIDI_STREAM, 5
+  field(:STREAM_TYPE_UNSPECIFIED, 0)
+  field(:STREAM_TYPE_UNARY, 1)
+  field(:STREAM_TYPE_CLIENT_STREAM, 2)
+  field(:STREAM_TYPE_SERVER_STREAM, 3)
+  field(:STREAM_TYPE_HALF_DUPLEX_BIDI_STREAM, 4)
+  field(:STREAM_TYPE_FULL_DUPLEX_BIDI_STREAM, 5)
 end
 
 defmodule Connectrpc.Conformance.V1.Code do
@@ -310,108 +320,110 @@ defmodule Connectrpc.Conformance.V1.Code do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.EnumValueDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.EnumDescriptorProto{
       name: "Code",
       value: [
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_UNSPECIFIED",
           number: 0,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_CANCELED",
           number: 1,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_UNKNOWN",
           number: 2,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_INVALID_ARGUMENT",
           number: 3,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_DEADLINE_EXCEEDED",
           number: 4,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_NOT_FOUND",
           number: 5,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_ALREADY_EXISTS",
           number: 6,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_PERMISSION_DENIED",
           number: 7,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_RESOURCE_EXHAUSTED",
           number: 8,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_FAILED_PRECONDITION",
           number: 9,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_ABORTED",
           number: 10,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_OUT_OF_RANGE",
           number: 11,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_UNIMPLEMENTED",
           number: 12,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_INTERNAL",
           number: 13,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_UNAVAILABLE",
           number: 14,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_DATA_LOSS",
           number: 15,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CODE_UNAUTHENTICATED",
           number: 16,
           options: nil,
@@ -425,23 +437,23 @@ defmodule Connectrpc.Conformance.V1.Code do
     }
   end
 
-  field :CODE_UNSPECIFIED, 0
-  field :CODE_CANCELED, 1
-  field :CODE_UNKNOWN, 2
-  field :CODE_INVALID_ARGUMENT, 3
-  field :CODE_DEADLINE_EXCEEDED, 4
-  field :CODE_NOT_FOUND, 5
-  field :CODE_ALREADY_EXISTS, 6
-  field :CODE_PERMISSION_DENIED, 7
-  field :CODE_RESOURCE_EXHAUSTED, 8
-  field :CODE_FAILED_PRECONDITION, 9
-  field :CODE_ABORTED, 10
-  field :CODE_OUT_OF_RANGE, 11
-  field :CODE_UNIMPLEMENTED, 12
-  field :CODE_INTERNAL, 13
-  field :CODE_UNAVAILABLE, 14
-  field :CODE_DATA_LOSS, 15
-  field :CODE_UNAUTHENTICATED, 16
+  field(:CODE_UNSPECIFIED, 0)
+  field(:CODE_CANCELED, 1)
+  field(:CODE_UNKNOWN, 2)
+  field(:CODE_INVALID_ARGUMENT, 3)
+  field(:CODE_DEADLINE_EXCEEDED, 4)
+  field(:CODE_NOT_FOUND, 5)
+  field(:CODE_ALREADY_EXISTS, 6)
+  field(:CODE_PERMISSION_DENIED, 7)
+  field(:CODE_RESOURCE_EXHAUSTED, 8)
+  field(:CODE_FAILED_PRECONDITION, 9)
+  field(:CODE_ABORTED, 10)
+  field(:CODE_OUT_OF_RANGE, 11)
+  field(:CODE_UNIMPLEMENTED, 12)
+  field(:CODE_INTERNAL, 13)
+  field(:CODE_UNAVAILABLE, 14)
+  field(:CODE_DATA_LOSS, 15)
+  field(:CODE_UNAUTHENTICATED, 16)
 end
 
 defmodule Connectrpc.Conformance.V1.Config do
@@ -452,12 +464,15 @@ defmodule Connectrpc.Conformance.V1.Config do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Connectrpc.Conformance.V1.ConfigCase
+  alias Google.Protobuf.FieldDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.DescriptorProto{
       name: "Config",
       field: [
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "features",
           extendee: nil,
           number: 1,
@@ -471,7 +486,7 @@ defmodule Connectrpc.Conformance.V1.Config do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "include_cases",
           extendee: nil,
           number: 2,
@@ -485,7 +500,7 @@ defmodule Connectrpc.Conformance.V1.Config do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "exclude_cases",
           extendee: nil,
           number: 3,
@@ -512,17 +527,19 @@ defmodule Connectrpc.Conformance.V1.Config do
     }
   end
 
-  field :features, 1, type: Connectrpc.Conformance.V1.Features
+  field(:features, 1, type: Connectrpc.Conformance.V1.Features)
 
-  field :include_cases, 2,
+  field(:include_cases, 2,
     repeated: true,
-    type: Connectrpc.Conformance.V1.ConfigCase,
+    type: ConfigCase,
     json_name: "includeCases"
+  )
 
-  field :exclude_cases, 3,
+  field(:exclude_cases, 3,
     repeated: true,
-    type: Connectrpc.Conformance.V1.ConfigCase,
+    type: ConfigCase,
     json_name: "excludeCases"
+  )
 end
 
 defmodule Connectrpc.Conformance.V1.Features do
@@ -533,12 +550,15 @@ defmodule Connectrpc.Conformance.V1.Features do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.FieldDescriptorProto
+  alias Google.Protobuf.OneofDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.DescriptorProto{
       name: "Features",
       field: [
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "versions",
           extendee: nil,
           number: 1,
@@ -552,7 +572,7 @@ defmodule Connectrpc.Conformance.V1.Features do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "protocols",
           extendee: nil,
           number: 2,
@@ -566,7 +586,7 @@ defmodule Connectrpc.Conformance.V1.Features do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "codecs",
           extendee: nil,
           number: 3,
@@ -580,7 +600,7 @@ defmodule Connectrpc.Conformance.V1.Features do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "compressions",
           extendee: nil,
           number: 4,
@@ -594,7 +614,7 @@ defmodule Connectrpc.Conformance.V1.Features do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "stream_types",
           extendee: nil,
           number: 5,
@@ -608,7 +628,7 @@ defmodule Connectrpc.Conformance.V1.Features do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "supports_h2c",
           extendee: nil,
           number: 6,
@@ -622,7 +642,7 @@ defmodule Connectrpc.Conformance.V1.Features do
           proto3_optional: true,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "supports_tls",
           extendee: nil,
           number: 7,
@@ -636,7 +656,7 @@ defmodule Connectrpc.Conformance.V1.Features do
           proto3_optional: true,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "supports_tls_client_certs",
           extendee: nil,
           number: 8,
@@ -650,7 +670,7 @@ defmodule Connectrpc.Conformance.V1.Features do
           proto3_optional: true,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "supports_trailers",
           extendee: nil,
           number: 9,
@@ -664,7 +684,7 @@ defmodule Connectrpc.Conformance.V1.Features do
           proto3_optional: true,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "supports_half_duplex_bidi_over_http1",
           extendee: nil,
           number: 10,
@@ -678,7 +698,7 @@ defmodule Connectrpc.Conformance.V1.Features do
           proto3_optional: true,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "supports_connect_get",
           extendee: nil,
           number: 11,
@@ -692,7 +712,7 @@ defmodule Connectrpc.Conformance.V1.Features do
           proto3_optional: true,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "supports_message_receive_limit",
           extendee: nil,
           number: 12,
@@ -713,37 +733,37 @@ defmodule Connectrpc.Conformance.V1.Features do
       extension: [],
       options: nil,
       oneof_decl: [
-        %Google.Protobuf.OneofDescriptorProto{
+        %OneofDescriptorProto{
           name: "_supports_h2c",
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.OneofDescriptorProto{
+        %OneofDescriptorProto{
           name: "_supports_tls",
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.OneofDescriptorProto{
+        %OneofDescriptorProto{
           name: "_supports_tls_client_certs",
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.OneofDescriptorProto{
+        %OneofDescriptorProto{
           name: "_supports_trailers",
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.OneofDescriptorProto{
+        %OneofDescriptorProto{
           name: "_supports_half_duplex_bidi_over_http1",
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.OneofDescriptorProto{
+        %OneofDescriptorProto{
           name: "_supports_connect_get",
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.OneofDescriptorProto{
+        %OneofDescriptorProto{
           name: "_supports_message_receive_limit",
           options: nil,
           __unknown_fields__: []
@@ -755,41 +775,46 @@ defmodule Connectrpc.Conformance.V1.Features do
     }
   end
 
-  field :versions, 1, repeated: true, type: Connectrpc.Conformance.V1.HTTPVersion, enum: true
-  field :protocols, 2, repeated: true, type: Connectrpc.Conformance.V1.Protocol, enum: true
-  field :codecs, 3, repeated: true, type: Connectrpc.Conformance.V1.Codec, enum: true
-  field :compressions, 4, repeated: true, type: Connectrpc.Conformance.V1.Compression, enum: true
+  field(:versions, 1, repeated: true, type: Connectrpc.Conformance.V1.HTTPVersion, enum: true)
+  field(:protocols, 2, repeated: true, type: Connectrpc.Conformance.V1.Protocol, enum: true)
+  field(:codecs, 3, repeated: true, type: Connectrpc.Conformance.V1.Codec, enum: true)
+  field(:compressions, 4, repeated: true, type: Connectrpc.Conformance.V1.Compression, enum: true)
 
-  field :stream_types, 5,
+  field(:stream_types, 5,
     repeated: true,
     type: Connectrpc.Conformance.V1.StreamType,
     json_name: "streamTypes",
     enum: true
+  )
 
-  field :supports_h2c, 6, proto3_optional: true, type: :bool, json_name: "supportsH2c"
-  field :supports_tls, 7, proto3_optional: true, type: :bool, json_name: "supportsTls"
+  field(:supports_h2c, 6, proto3_optional: true, type: :bool, json_name: "supportsH2c")
+  field(:supports_tls, 7, proto3_optional: true, type: :bool, json_name: "supportsTls")
 
-  field :supports_tls_client_certs, 8,
+  field(:supports_tls_client_certs, 8,
     proto3_optional: true,
     type: :bool,
     json_name: "supportsTlsClientCerts"
+  )
 
-  field :supports_trailers, 9, proto3_optional: true, type: :bool, json_name: "supportsTrailers"
+  field(:supports_trailers, 9, proto3_optional: true, type: :bool, json_name: "supportsTrailers")
 
-  field :supports_half_duplex_bidi_over_http1, 10,
+  field(:supports_half_duplex_bidi_over_http1, 10,
     proto3_optional: true,
     type: :bool,
     json_name: "supportsHalfDuplexBidiOverHttp1"
+  )
 
-  field :supports_connect_get, 11,
+  field(:supports_connect_get, 11,
     proto3_optional: true,
     type: :bool,
     json_name: "supportsConnectGet"
+  )
 
-  field :supports_message_receive_limit, 12,
+  field(:supports_message_receive_limit, 12,
     proto3_optional: true,
     type: :bool,
     json_name: "supportsMessageReceiveLimit"
+  )
 end
 
 defmodule Connectrpc.Conformance.V1.ConfigCase do
@@ -800,12 +825,15 @@ defmodule Connectrpc.Conformance.V1.ConfigCase do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.FieldDescriptorProto
+  alias Google.Protobuf.OneofDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.DescriptorProto{
       name: "ConfigCase",
       field: [
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "version",
           extendee: nil,
           number: 1,
@@ -819,7 +847,7 @@ defmodule Connectrpc.Conformance.V1.ConfigCase do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "protocol",
           extendee: nil,
           number: 2,
@@ -833,7 +861,7 @@ defmodule Connectrpc.Conformance.V1.ConfigCase do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "codec",
           extendee: nil,
           number: 3,
@@ -847,7 +875,7 @@ defmodule Connectrpc.Conformance.V1.ConfigCase do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "compression",
           extendee: nil,
           number: 4,
@@ -861,7 +889,7 @@ defmodule Connectrpc.Conformance.V1.ConfigCase do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "stream_type",
           extendee: nil,
           number: 5,
@@ -875,7 +903,7 @@ defmodule Connectrpc.Conformance.V1.ConfigCase do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "use_tls",
           extendee: nil,
           number: 6,
@@ -889,7 +917,7 @@ defmodule Connectrpc.Conformance.V1.ConfigCase do
           proto3_optional: true,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "use_tls_client_certs",
           extendee: nil,
           number: 7,
@@ -903,7 +931,7 @@ defmodule Connectrpc.Conformance.V1.ConfigCase do
           proto3_optional: true,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "use_message_receive_limit",
           extendee: nil,
           number: 8,
@@ -924,17 +952,17 @@ defmodule Connectrpc.Conformance.V1.ConfigCase do
       extension: [],
       options: nil,
       oneof_decl: [
-        %Google.Protobuf.OneofDescriptorProto{
+        %OneofDescriptorProto{
           name: "_use_tls",
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.OneofDescriptorProto{
+        %OneofDescriptorProto{
           name: "_use_tls_client_certs",
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.OneofDescriptorProto{
+        %OneofDescriptorProto{
           name: "_use_message_receive_limit",
           options: nil,
           __unknown_fields__: []
@@ -946,27 +974,30 @@ defmodule Connectrpc.Conformance.V1.ConfigCase do
     }
   end
 
-  field :version, 1, type: Connectrpc.Conformance.V1.HTTPVersion, enum: true
-  field :protocol, 2, type: Connectrpc.Conformance.V1.Protocol, enum: true
-  field :codec, 3, type: Connectrpc.Conformance.V1.Codec, enum: true
-  field :compression, 4, type: Connectrpc.Conformance.V1.Compression, enum: true
+  field(:version, 1, type: Connectrpc.Conformance.V1.HTTPVersion, enum: true)
+  field(:protocol, 2, type: Connectrpc.Conformance.V1.Protocol, enum: true)
+  field(:codec, 3, type: Connectrpc.Conformance.V1.Codec, enum: true)
+  field(:compression, 4, type: Connectrpc.Conformance.V1.Compression, enum: true)
 
-  field :stream_type, 5,
+  field(:stream_type, 5,
     type: Connectrpc.Conformance.V1.StreamType,
     json_name: "streamType",
     enum: true
+  )
 
-  field :use_tls, 6, proto3_optional: true, type: :bool, json_name: "useTls"
+  field(:use_tls, 6, proto3_optional: true, type: :bool, json_name: "useTls")
 
-  field :use_tls_client_certs, 7,
+  field(:use_tls_client_certs, 7,
     proto3_optional: true,
     type: :bool,
     json_name: "useTlsClientCerts"
+  )
 
-  field :use_message_receive_limit, 8,
+  field(:use_message_receive_limit, 8,
     proto3_optional: true,
     type: :bool,
     json_name: "useMessageReceiveLimit"
+  )
 end
 
 defmodule Connectrpc.Conformance.V1.TLSCreds do
@@ -977,12 +1008,14 @@ defmodule Connectrpc.Conformance.V1.TLSCreds do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.FieldDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.DescriptorProto{
       name: "TLSCreds",
       field: [
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "cert",
           extendee: nil,
           number: 1,
@@ -996,7 +1029,7 @@ defmodule Connectrpc.Conformance.V1.TLSCreds do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "key",
           extendee: nil,
           number: 2,
@@ -1023,6 +1056,6 @@ defmodule Connectrpc.Conformance.V1.TLSCreds do
     }
   end
 
-  field :cert, 1, type: :bytes
-  field :key, 2, type: :bytes
+  field(:cert, 1, type: :bytes)
+  field(:key, 2, type: :bytes)
 end

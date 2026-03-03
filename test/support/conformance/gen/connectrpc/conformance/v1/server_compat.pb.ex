@@ -6,12 +6,14 @@ defmodule Connectrpc.Conformance.V1.ServerCompatRequest do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.FieldDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.DescriptorProto{
       name: "ServerCompatRequest",
       field: [
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "protocol",
           extendee: nil,
           number: 1,
@@ -25,7 +27,7 @@ defmodule Connectrpc.Conformance.V1.ServerCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "http_version",
           extendee: nil,
           number: 2,
@@ -39,7 +41,7 @@ defmodule Connectrpc.Conformance.V1.ServerCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "use_tls",
           extendee: nil,
           number: 4,
@@ -53,7 +55,7 @@ defmodule Connectrpc.Conformance.V1.ServerCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "client_tls_cert",
           extendee: nil,
           number: 5,
@@ -67,7 +69,7 @@ defmodule Connectrpc.Conformance.V1.ServerCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "message_receive_limit",
           extendee: nil,
           number: 6,
@@ -81,7 +83,7 @@ defmodule Connectrpc.Conformance.V1.ServerCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "server_creds",
           extendee: nil,
           number: 7,
@@ -108,17 +110,18 @@ defmodule Connectrpc.Conformance.V1.ServerCompatRequest do
     }
   end
 
-  field :protocol, 1, type: Connectrpc.Conformance.V1.Protocol, enum: true
+  field(:protocol, 1, type: Connectrpc.Conformance.V1.Protocol, enum: true)
 
-  field :http_version, 2,
+  field(:http_version, 2,
     type: Connectrpc.Conformance.V1.HTTPVersion,
     json_name: "httpVersion",
     enum: true
+  )
 
-  field :use_tls, 4, type: :bool, json_name: "useTls"
-  field :client_tls_cert, 5, type: :bytes, json_name: "clientTlsCert"
-  field :message_receive_limit, 6, type: :uint32, json_name: "messageReceiveLimit"
-  field :server_creds, 7, type: Connectrpc.Conformance.V1.TLSCreds, json_name: "serverCreds"
+  field(:use_tls, 4, type: :bool, json_name: "useTls")
+  field(:client_tls_cert, 5, type: :bytes, json_name: "clientTlsCert")
+  field(:message_receive_limit, 6, type: :uint32, json_name: "messageReceiveLimit")
+  field(:server_creds, 7, type: Connectrpc.Conformance.V1.TLSCreds, json_name: "serverCreds")
 end
 
 defmodule Connectrpc.Conformance.V1.ServerCompatResponse do
@@ -129,12 +132,14 @@ defmodule Connectrpc.Conformance.V1.ServerCompatResponse do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.FieldDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.DescriptorProto{
       name: "ServerCompatResponse",
       field: [
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "host",
           extendee: nil,
           number: 1,
@@ -148,7 +153,7 @@ defmodule Connectrpc.Conformance.V1.ServerCompatResponse do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "port",
           extendee: nil,
           number: 2,
@@ -162,7 +167,7 @@ defmodule Connectrpc.Conformance.V1.ServerCompatResponse do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "pem_cert",
           extendee: nil,
           number: 3,
@@ -189,7 +194,7 @@ defmodule Connectrpc.Conformance.V1.ServerCompatResponse do
     }
   end
 
-  field :host, 1, type: :string
-  field :port, 2, type: :uint32
-  field :pem_cert, 3, type: :bytes, json_name: "pemCert"
+  field(:host, 1, type: :string)
+  field(:port, 2, type: :uint32)
+  field(:pem_cert, 3, type: :bytes, json_name: "pemCert")
 end

@@ -7,24 +7,26 @@ defmodule Connectrpc.Conformance.V1.TestSuite.TestMode do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.EnumValueDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.EnumDescriptorProto{
       name: "TestMode",
       value: [
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "TEST_MODE_UNSPECIFIED",
           number: 0,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "TEST_MODE_CLIENT",
           number: 1,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "TEST_MODE_SERVER",
           number: 2,
           options: nil,
@@ -38,9 +40,9 @@ defmodule Connectrpc.Conformance.V1.TestSuite.TestMode do
     }
   end
 
-  field :TEST_MODE_UNSPECIFIED, 0
-  field :TEST_MODE_CLIENT, 1
-  field :TEST_MODE_SERVER, 2
+  field(:TEST_MODE_UNSPECIFIED, 0)
+  field(:TEST_MODE_CLIENT, 1)
+  field(:TEST_MODE_SERVER, 2)
 end
 
 defmodule Connectrpc.Conformance.V1.TestSuite.ConnectVersionMode do
@@ -52,24 +54,26 @@ defmodule Connectrpc.Conformance.V1.TestSuite.ConnectVersionMode do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.EnumValueDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.EnumDescriptorProto{
       name: "ConnectVersionMode",
       value: [
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CONNECT_VERSION_MODE_UNSPECIFIED",
           number: 0,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CONNECT_VERSION_MODE_REQUIRE",
           number: 1,
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumValueDescriptorProto{
+        %EnumValueDescriptorProto{
           name: "CONNECT_VERSION_MODE_IGNORE",
           number: 2,
           options: nil,
@@ -83,9 +87,9 @@ defmodule Connectrpc.Conformance.V1.TestSuite.ConnectVersionMode do
     }
   end
 
-  field :CONNECT_VERSION_MODE_UNSPECIFIED, 0
-  field :CONNECT_VERSION_MODE_REQUIRE, 1
-  field :CONNECT_VERSION_MODE_IGNORE, 2
+  field(:CONNECT_VERSION_MODE_UNSPECIFIED, 0)
+  field(:CONNECT_VERSION_MODE_REQUIRE, 1)
+  field(:CONNECT_VERSION_MODE_IGNORE, 2)
 end
 
 defmodule Connectrpc.Conformance.V1.TestSuite do
@@ -96,12 +100,16 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.EnumDescriptorProto
+  alias Google.Protobuf.EnumValueDescriptorProto
+  alias Google.Protobuf.FieldDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.DescriptorProto{
       name: "TestSuite",
       field: [
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "name",
           extendee: nil,
           number: 1,
@@ -115,7 +123,7 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "mode",
           extendee: nil,
           number: 2,
@@ -129,7 +137,7 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "test_cases",
           extendee: nil,
           number: 3,
@@ -143,7 +151,7 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "relevant_protocols",
           extendee: nil,
           number: 4,
@@ -157,7 +165,7 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "relevant_http_versions",
           extendee: nil,
           number: 5,
@@ -171,7 +179,7 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "relevant_codecs",
           extendee: nil,
           number: 6,
@@ -185,7 +193,7 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "relevant_compressions",
           extendee: nil,
           number: 7,
@@ -199,7 +207,7 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "connect_version_mode",
           extendee: nil,
           number: 8,
@@ -213,7 +221,7 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "relies_on_tls",
           extendee: nil,
           number: 9,
@@ -227,7 +235,7 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "relies_on_tls_client_certs",
           extendee: nil,
           number: 10,
@@ -241,7 +249,7 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "relies_on_connect_get",
           extendee: nil,
           number: 11,
@@ -255,7 +263,7 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "relies_on_message_receive_limit",
           extendee: nil,
           number: 12,
@@ -272,22 +280,22 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
       ],
       nested_type: [],
       enum_type: [
-        %Google.Protobuf.EnumDescriptorProto{
+        %EnumDescriptorProto{
           name: "TestMode",
           value: [
-            %Google.Protobuf.EnumValueDescriptorProto{
+            %EnumValueDescriptorProto{
               name: "TEST_MODE_UNSPECIFIED",
               number: 0,
               options: nil,
               __unknown_fields__: []
             },
-            %Google.Protobuf.EnumValueDescriptorProto{
+            %EnumValueDescriptorProto{
               name: "TEST_MODE_CLIENT",
               number: 1,
               options: nil,
               __unknown_fields__: []
             },
-            %Google.Protobuf.EnumValueDescriptorProto{
+            %EnumValueDescriptorProto{
               name: "TEST_MODE_SERVER",
               number: 2,
               options: nil,
@@ -299,22 +307,22 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
           reserved_name: [],
           __unknown_fields__: []
         },
-        %Google.Protobuf.EnumDescriptorProto{
+        %EnumDescriptorProto{
           name: "ConnectVersionMode",
           value: [
-            %Google.Protobuf.EnumValueDescriptorProto{
+            %EnumValueDescriptorProto{
               name: "CONNECT_VERSION_MODE_UNSPECIFIED",
               number: 0,
               options: nil,
               __unknown_fields__: []
             },
-            %Google.Protobuf.EnumValueDescriptorProto{
+            %EnumValueDescriptorProto{
               name: "CONNECT_VERSION_MODE_REQUIRE",
               number: 1,
               options: nil,
               __unknown_fields__: []
             },
-            %Google.Protobuf.EnumValueDescriptorProto{
+            %EnumValueDescriptorProto{
               name: "CONNECT_VERSION_MODE_IGNORE",
               number: 2,
               options: nil,
@@ -337,50 +345,57 @@ defmodule Connectrpc.Conformance.V1.TestSuite do
     }
   end
 
-  field :name, 1, type: :string
-  field :mode, 2, type: Connectrpc.Conformance.V1.TestSuite.TestMode, enum: true
+  field(:name, 1, type: :string)
+  field(:mode, 2, type: Connectrpc.Conformance.V1.TestSuite.TestMode, enum: true)
 
-  field :test_cases, 3,
+  field(:test_cases, 3,
     repeated: true,
     type: Connectrpc.Conformance.V1.TestCase,
     json_name: "testCases"
+  )
 
-  field :relevant_protocols, 4,
+  field(:relevant_protocols, 4,
     repeated: true,
     type: Connectrpc.Conformance.V1.Protocol,
     json_name: "relevantProtocols",
     enum: true
+  )
 
-  field :relevant_http_versions, 5,
+  field(:relevant_http_versions, 5,
     repeated: true,
     type: Connectrpc.Conformance.V1.HTTPVersion,
     json_name: "relevantHttpVersions",
     enum: true
+  )
 
-  field :relevant_codecs, 6,
+  field(:relevant_codecs, 6,
     repeated: true,
     type: Connectrpc.Conformance.V1.Codec,
     json_name: "relevantCodecs",
     enum: true
+  )
 
-  field :relevant_compressions, 7,
+  field(:relevant_compressions, 7,
     repeated: true,
     type: Connectrpc.Conformance.V1.Compression,
     json_name: "relevantCompressions",
     enum: true
+  )
 
-  field :connect_version_mode, 8,
+  field(:connect_version_mode, 8,
     type: Connectrpc.Conformance.V1.TestSuite.ConnectVersionMode,
     json_name: "connectVersionMode",
     enum: true
+  )
 
-  field :relies_on_tls, 9, type: :bool, json_name: "reliesOnTls"
-  field :relies_on_tls_client_certs, 10, type: :bool, json_name: "reliesOnTlsClientCerts"
-  field :relies_on_connect_get, 11, type: :bool, json_name: "reliesOnConnectGet"
+  field(:relies_on_tls, 9, type: :bool, json_name: "reliesOnTls")
+  field(:relies_on_tls_client_certs, 10, type: :bool, json_name: "reliesOnTlsClientCerts")
+  field(:relies_on_connect_get, 11, type: :bool, json_name: "reliesOnConnectGet")
 
-  field :relies_on_message_receive_limit, 12,
+  field(:relies_on_message_receive_limit, 12,
     type: :bool,
     json_name: "reliesOnMessageReceiveLimit"
+  )
 end
 
 defmodule Connectrpc.Conformance.V1.TestCase.ExpandedSize do
@@ -429,10 +444,11 @@ defmodule Connectrpc.Conformance.V1.TestCase.ExpandedSize do
     }
   end
 
-  field :size_relative_to_limit, 1,
+  field(:size_relative_to_limit, 1,
     proto3_optional: true,
     type: :int32,
     json_name: "sizeRelativeToLimit"
+  )
 end
 
 defmodule Connectrpc.Conformance.V1.TestCase do
@@ -443,12 +459,15 @@ defmodule Connectrpc.Conformance.V1.TestCase do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.DescriptorProto
+  alias Google.Protobuf.FieldDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
-    %Google.Protobuf.DescriptorProto{
+    %DescriptorProto{
       name: "TestCase",
       field: [
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "request",
           extendee: nil,
           number: 1,
@@ -462,7 +481,7 @@ defmodule Connectrpc.Conformance.V1.TestCase do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "expand_requests",
           extendee: nil,
           number: 2,
@@ -476,7 +495,7 @@ defmodule Connectrpc.Conformance.V1.TestCase do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "expected_response",
           extendee: nil,
           number: 3,
@@ -490,7 +509,7 @@ defmodule Connectrpc.Conformance.V1.TestCase do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "other_allowed_error_codes",
           extendee: nil,
           number: 4,
@@ -506,10 +525,10 @@ defmodule Connectrpc.Conformance.V1.TestCase do
         }
       ],
       nested_type: [
-        %Google.Protobuf.DescriptorProto{
+        %DescriptorProto{
           name: "ExpandedSize",
           field: [
-            %Google.Protobuf.FieldDescriptorProto{
+            %FieldDescriptorProto{
               name: "size_relative_to_limit",
               extendee: nil,
               number: 1,
@@ -552,20 +571,23 @@ defmodule Connectrpc.Conformance.V1.TestCase do
     }
   end
 
-  field :request, 1, type: Connectrpc.Conformance.V1.ClientCompatRequest
+  field(:request, 1, type: Connectrpc.Conformance.V1.ClientCompatRequest)
 
-  field :expand_requests, 2,
+  field(:expand_requests, 2,
     repeated: true,
     type: Connectrpc.Conformance.V1.TestCase.ExpandedSize,
     json_name: "expandRequests"
+  )
 
-  field :expected_response, 3,
+  field(:expected_response, 3,
     type: Connectrpc.Conformance.V1.ClientResponseResult,
     json_name: "expectedResponse"
+  )
 
-  field :other_allowed_error_codes, 4,
+  field(:other_allowed_error_codes, 4,
     repeated: true,
     type: Connectrpc.Conformance.V1.Code,
     json_name: "otherAllowedErrorCodes",
     enum: true
+  )
 end

@@ -6,12 +6,14 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest.Cancel do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.FieldDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.DescriptorProto{
       name: "Cancel",
       field: [
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "before_close_send",
           extendee: nil,
           number: 1,
@@ -25,7 +27,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest.Cancel do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "after_close_send_ms",
           extendee: nil,
           number: 2,
@@ -39,7 +41,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest.Cancel do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "after_num_responses",
           extendee: nil,
           number: 3,
@@ -72,11 +74,11 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest.Cancel do
     }
   end
 
-  oneof :cancel_timing, 0
+  oneof(:cancel_timing, 0)
 
-  field :before_close_send, 1, type: Google.Protobuf.Empty, json_name: "beforeCloseSend", oneof: 0
-  field :after_close_send_ms, 2, type: :uint32, json_name: "afterCloseSendMs", oneof: 0
-  field :after_num_responses, 3, type: :uint32, json_name: "afterNumResponses", oneof: 0
+  field(:before_close_send, 1, type: Google.Protobuf.Empty, json_name: "beforeCloseSend", oneof: 0)
+  field(:after_close_send_ms, 2, type: :uint32, json_name: "afterCloseSendMs", oneof: 0)
+  field(:after_num_responses, 3, type: :uint32, json_name: "afterNumResponses", oneof: 0)
 end
 
 defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
@@ -87,12 +89,16 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.DescriptorProto
+  alias Google.Protobuf.FieldDescriptorProto
+  alias Google.Protobuf.OneofDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
-    %Google.Protobuf.DescriptorProto{
+    %DescriptorProto{
       name: "ClientCompatRequest",
       field: [
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "test_name",
           extendee: nil,
           number: 1,
@@ -106,7 +112,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "http_version",
           extendee: nil,
           number: 2,
@@ -120,7 +126,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "protocol",
           extendee: nil,
           number: 3,
@@ -134,7 +140,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "codec",
           extendee: nil,
           number: 4,
@@ -148,7 +154,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "compression",
           extendee: nil,
           number: 5,
@@ -162,7 +168,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "host",
           extendee: nil,
           number: 6,
@@ -176,7 +182,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "port",
           extendee: nil,
           number: 7,
@@ -190,7 +196,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "server_tls_cert",
           extendee: nil,
           number: 8,
@@ -204,7 +210,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "client_tls_creds",
           extendee: nil,
           number: 9,
@@ -218,7 +224,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "message_receive_limit",
           extendee: nil,
           number: 10,
@@ -232,7 +238,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "service",
           extendee: nil,
           number: 11,
@@ -246,7 +252,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: true,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "method",
           extendee: nil,
           number: 12,
@@ -260,7 +266,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: true,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "stream_type",
           extendee: nil,
           number: 13,
@@ -274,7 +280,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "use_get_http_method",
           extendee: nil,
           number: 14,
@@ -288,7 +294,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "request_headers",
           extendee: nil,
           number: 15,
@@ -302,7 +308,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "request_messages",
           extendee: nil,
           number: 16,
@@ -316,7 +322,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "timeout_ms",
           extendee: nil,
           number: 17,
@@ -330,7 +336,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: true,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "request_delay_ms",
           extendee: nil,
           number: 18,
@@ -344,7 +350,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "cancel",
           extendee: nil,
           number: 19,
@@ -358,7 +364,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "raw_request",
           extendee: nil,
           number: 20,
@@ -374,10 +380,10 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
         }
       ],
       nested_type: [
-        %Google.Protobuf.DescriptorProto{
+        %DescriptorProto{
           name: "Cancel",
           field: [
-            %Google.Protobuf.FieldDescriptorProto{
+            %FieldDescriptorProto{
               name: "before_close_send",
               extendee: nil,
               number: 1,
@@ -391,7 +397,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
               proto3_optional: nil,
               __unknown_fields__: []
             },
-            %Google.Protobuf.FieldDescriptorProto{
+            %FieldDescriptorProto{
               name: "after_close_send_ms",
               extendee: nil,
               number: 2,
@@ -405,7 +411,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
               proto3_optional: nil,
               __unknown_fields__: []
             },
-            %Google.Protobuf.FieldDescriptorProto{
+            %FieldDescriptorProto{
               name: "after_num_responses",
               extendee: nil,
               number: 3,
@@ -426,7 +432,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
           extension: [],
           options: nil,
           oneof_decl: [
-            %Google.Protobuf.OneofDescriptorProto{
+            %OneofDescriptorProto{
               name: "cancel_timing",
               options: nil,
               __unknown_fields__: []
@@ -442,17 +448,17 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
       extension: [],
       options: nil,
       oneof_decl: [
-        %Google.Protobuf.OneofDescriptorProto{
+        %OneofDescriptorProto{
           name: "_service",
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.OneofDescriptorProto{
+        %OneofDescriptorProto{
           name: "_method",
           options: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.OneofDescriptorProto{
+        %OneofDescriptorProto{
           name: "_timeout_ms",
           options: nil,
           __unknown_fields__: []
@@ -464,49 +470,54 @@ defmodule Connectrpc.Conformance.V1.ClientCompatRequest do
     }
   end
 
-  field :test_name, 1, type: :string, json_name: "testName"
+  field(:test_name, 1, type: :string, json_name: "testName")
 
-  field :http_version, 2,
+  field(:http_version, 2,
     type: Connectrpc.Conformance.V1.HTTPVersion,
     json_name: "httpVersion",
     enum: true
+  )
 
-  field :protocol, 3, type: Connectrpc.Conformance.V1.Protocol, enum: true
-  field :codec, 4, type: Connectrpc.Conformance.V1.Codec, enum: true
-  field :compression, 5, type: Connectrpc.Conformance.V1.Compression, enum: true
-  field :host, 6, type: :string
-  field :port, 7, type: :uint32
-  field :server_tls_cert, 8, type: :bytes, json_name: "serverTlsCert"
+  field(:protocol, 3, type: Connectrpc.Conformance.V1.Protocol, enum: true)
+  field(:codec, 4, type: Connectrpc.Conformance.V1.Codec, enum: true)
+  field(:compression, 5, type: Connectrpc.Conformance.V1.Compression, enum: true)
+  field(:host, 6, type: :string)
+  field(:port, 7, type: :uint32)
+  field(:server_tls_cert, 8, type: :bytes, json_name: "serverTlsCert")
 
-  field :client_tls_creds, 9,
+  field(:client_tls_creds, 9,
     type: Connectrpc.Conformance.V1.TLSCreds,
     json_name: "clientTlsCreds"
+  )
 
-  field :message_receive_limit, 10, type: :uint32, json_name: "messageReceiveLimit"
-  field :service, 11, proto3_optional: true, type: :string
-  field :method, 12, proto3_optional: true, type: :string
+  field(:message_receive_limit, 10, type: :uint32, json_name: "messageReceiveLimit")
+  field(:service, 11, proto3_optional: true, type: :string)
+  field(:method, 12, proto3_optional: true, type: :string)
 
-  field :stream_type, 13,
+  field(:stream_type, 13,
     type: Connectrpc.Conformance.V1.StreamType,
     json_name: "streamType",
     enum: true
+  )
 
-  field :use_get_http_method, 14, type: :bool, json_name: "useGetHttpMethod"
+  field(:use_get_http_method, 14, type: :bool, json_name: "useGetHttpMethod")
 
-  field :request_headers, 15,
+  field(:request_headers, 15,
     repeated: true,
     type: Connectrpc.Conformance.V1.Header,
     json_name: "requestHeaders"
+  )
 
-  field :request_messages, 16,
+  field(:request_messages, 16,
     repeated: true,
     type: Google.Protobuf.Any,
     json_name: "requestMessages"
+  )
 
-  field :timeout_ms, 17, proto3_optional: true, type: :uint32, json_name: "timeoutMs"
-  field :request_delay_ms, 18, type: :uint32, json_name: "requestDelayMs"
-  field :cancel, 19, type: Connectrpc.Conformance.V1.ClientCompatRequest.Cancel
-  field :raw_request, 20, type: Connectrpc.Conformance.V1.RawHTTPRequest, json_name: "rawRequest"
+  field(:timeout_ms, 17, proto3_optional: true, type: :uint32, json_name: "timeoutMs")
+  field(:request_delay_ms, 18, type: :uint32, json_name: "requestDelayMs")
+  field(:cancel, 19, type: Connectrpc.Conformance.V1.ClientCompatRequest.Cancel)
+  field(:raw_request, 20, type: Connectrpc.Conformance.V1.RawHTTPRequest, json_name: "rawRequest")
 end
 
 defmodule Connectrpc.Conformance.V1.ClientCompatResponse do
@@ -517,12 +528,14 @@ defmodule Connectrpc.Conformance.V1.ClientCompatResponse do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.FieldDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.DescriptorProto{
       name: "ClientCompatResponse",
       field: [
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "test_name",
           extendee: nil,
           number: 1,
@@ -536,7 +549,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatResponse do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "response",
           extendee: nil,
           number: 2,
@@ -550,7 +563,7 @@ defmodule Connectrpc.Conformance.V1.ClientCompatResponse do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "error",
           extendee: nil,
           number: 3,
@@ -583,11 +596,11 @@ defmodule Connectrpc.Conformance.V1.ClientCompatResponse do
     }
   end
 
-  oneof :result, 0
+  oneof(:result, 0)
 
-  field :test_name, 1, type: :string, json_name: "testName"
-  field :response, 2, type: Connectrpc.Conformance.V1.ClientResponseResult, oneof: 0
-  field :error, 3, type: Connectrpc.Conformance.V1.ClientErrorResult, oneof: 0
+  field(:test_name, 1, type: :string, json_name: "testName")
+  field(:response, 2, type: Connectrpc.Conformance.V1.ClientResponseResult, oneof: 0)
+  field(:error, 3, type: Connectrpc.Conformance.V1.ClientErrorResult, oneof: 0)
 end
 
 defmodule Connectrpc.Conformance.V1.ClientResponseResult do
@@ -598,12 +611,15 @@ defmodule Connectrpc.Conformance.V1.ClientResponseResult do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Connectrpc.Conformance.V1.Header
+  alias Google.Protobuf.FieldDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.DescriptorProto{
       name: "ClientResponseResult",
       field: [
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "response_headers",
           extendee: nil,
           number: 1,
@@ -617,7 +633,7 @@ defmodule Connectrpc.Conformance.V1.ClientResponseResult do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "payloads",
           extendee: nil,
           number: 2,
@@ -631,7 +647,7 @@ defmodule Connectrpc.Conformance.V1.ClientResponseResult do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "error",
           extendee: nil,
           number: 3,
@@ -645,7 +661,7 @@ defmodule Connectrpc.Conformance.V1.ClientResponseResult do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "response_trailers",
           extendee: nil,
           number: 4,
@@ -659,7 +675,7 @@ defmodule Connectrpc.Conformance.V1.ClientResponseResult do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "num_unsent_requests",
           extendee: nil,
           number: 5,
@@ -673,7 +689,7 @@ defmodule Connectrpc.Conformance.V1.ClientResponseResult do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "http_status_code",
           extendee: nil,
           number: 6,
@@ -687,7 +703,7 @@ defmodule Connectrpc.Conformance.V1.ClientResponseResult do
           proto3_optional: true,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "feedback",
           extendee: nil,
           number: 7,
@@ -720,22 +736,24 @@ defmodule Connectrpc.Conformance.V1.ClientResponseResult do
     }
   end
 
-  field :response_headers, 1,
+  field(:response_headers, 1,
     repeated: true,
-    type: Connectrpc.Conformance.V1.Header,
+    type: Header,
     json_name: "responseHeaders"
+  )
 
-  field :payloads, 2, repeated: true, type: Connectrpc.Conformance.V1.ConformancePayload
-  field :error, 3, type: Connectrpc.Conformance.V1.Error
+  field(:payloads, 2, repeated: true, type: Connectrpc.Conformance.V1.ConformancePayload)
+  field(:error, 3, type: Connectrpc.Conformance.V1.Error)
 
-  field :response_trailers, 4,
+  field(:response_trailers, 4,
     repeated: true,
-    type: Connectrpc.Conformance.V1.Header,
+    type: Header,
     json_name: "responseTrailers"
+  )
 
-  field :num_unsent_requests, 5, type: :int32, json_name: "numUnsentRequests"
-  field :http_status_code, 6, proto3_optional: true, type: :int32, json_name: "httpStatusCode"
-  field :feedback, 7, repeated: true, type: :string
+  field(:num_unsent_requests, 5, type: :int32, json_name: "numUnsentRequests")
+  field(:http_status_code, 6, proto3_optional: true, type: :int32, json_name: "httpStatusCode")
+  field(:feedback, 7, repeated: true, type: :string)
 end
 
 defmodule Connectrpc.Conformance.V1.ClientErrorResult do
@@ -778,7 +796,7 @@ defmodule Connectrpc.Conformance.V1.ClientErrorResult do
     }
   end
 
-  field :message, 1, type: :string
+  field(:message, 1, type: :string)
 end
 
 defmodule Connectrpc.Conformance.V1.WireDetails do
@@ -789,12 +807,14 @@ defmodule Connectrpc.Conformance.V1.WireDetails do
     protoc_gen_elixir_version: "0.16.0",
     syntax: :proto3
 
+  alias Google.Protobuf.FieldDescriptorProto
+
   def descriptor do
     # credo:disable-for-next-line
     %Google.Protobuf.DescriptorProto{
       name: "WireDetails",
       field: [
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "actual_status_code",
           extendee: nil,
           number: 1,
@@ -808,7 +828,7 @@ defmodule Connectrpc.Conformance.V1.WireDetails do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "connect_error_raw",
           extendee: nil,
           number: 2,
@@ -822,7 +842,7 @@ defmodule Connectrpc.Conformance.V1.WireDetails do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "actual_http_trailers",
           extendee: nil,
           number: 3,
@@ -836,7 +856,7 @@ defmodule Connectrpc.Conformance.V1.WireDetails do
           proto3_optional: nil,
           __unknown_fields__: []
         },
-        %Google.Protobuf.FieldDescriptorProto{
+        %FieldDescriptorProto{
           name: "actual_grpcweb_trailers",
           extendee: nil,
           number: 4,
@@ -869,16 +889,18 @@ defmodule Connectrpc.Conformance.V1.WireDetails do
     }
   end
 
-  field :actual_status_code, 1, type: :int32, json_name: "actualStatusCode"
-  field :connect_error_raw, 2, type: Google.Protobuf.Struct, json_name: "connectErrorRaw"
+  field(:actual_status_code, 1, type: :int32, json_name: "actualStatusCode")
+  field(:connect_error_raw, 2, type: Google.Protobuf.Struct, json_name: "connectErrorRaw")
 
-  field :actual_http_trailers, 3,
+  field(:actual_http_trailers, 3,
     repeated: true,
     type: Connectrpc.Conformance.V1.Header,
     json_name: "actualHttpTrailers"
+  )
 
-  field :actual_grpcweb_trailers, 4,
+  field(:actual_grpcweb_trailers, 4,
     proto3_optional: true,
     type: :string,
     json_name: "actualGrpcwebTrailers"
+  )
 end

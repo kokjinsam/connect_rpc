@@ -1,15 +1,17 @@
 defmodule ConnectRPCTest do
   use ExUnit.Case, async: false
-  import Plug.Test
 
   import Plug.Conn
+  import Plug.Test
 
   alias ConnectRPC.TestHandlers
-  alias ConnectRPC.TestProto.{EchoRequest, EchoResponse}
+  alias ConnectRPC.TestProto.EchoRequest
+  alias ConnectRPC.TestProto.EchoResponse
 
   test "handles unary JSON request/response" do
     conn =
-      conn(:post, "/Echo", ~s({"message":"hello"}))
+      :post
+      |> conn("/Echo", ~s({"message":"hello"}))
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.EchoHandler)
@@ -25,7 +27,8 @@ defmodule ConnectRPCTest do
     body = EchoRequest.encode(%EchoRequest{message: "hello"})
 
     conn =
-      conn(:post, "/Echo", body)
+      :post
+      |> conn("/Echo", body)
       |> put_req_header("content-type", "application/proto")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.EchoHandler)
@@ -37,7 +40,8 @@ defmodule ConnectRPCTest do
 
   test "returns 405 when request method is not POST" do
     conn =
-      conn(:get, "/Echo", "")
+      :get
+      |> conn("/Echo", "")
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.EchoHandler)
@@ -49,7 +53,8 @@ defmodule ConnectRPCTest do
 
   test "returns invalid_argument when protocol header is missing" do
     conn =
-      conn(:post, "/Echo", ~s({"message":"hello"}))
+      :post
+      |> conn("/Echo", ~s({"message":"hello"}))
       |> put_req_header("content-type", "application/json")
       |> call_rpc(TestHandlers.EchoHandler)
 
@@ -59,7 +64,8 @@ defmodule ConnectRPCTest do
 
   test "returns invalid_argument when content-type is unsupported" do
     conn =
-      conn(:post, "/Echo", "hello")
+      :post
+      |> conn("/Echo", "hello")
       |> put_req_header("content-type", "text/plain")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.EchoHandler)
@@ -70,7 +76,8 @@ defmodule ConnectRPCTest do
 
   test "returns unimplemented when compression is requested" do
     conn =
-      conn(:post, "/Echo", ~s({"message":"hello"}))
+      :post
+      |> conn("/Echo", ~s({"message":"hello"}))
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> put_req_header("content-encoding", "gzip")
@@ -82,7 +89,8 @@ defmodule ConnectRPCTest do
 
   test "returns unimplemented for unknown method" do
     conn =
-      conn(:post, "/DoesNotExist", ~s({"message":"hello"}))
+      :post
+      |> conn("/DoesNotExist", ~s({"message":"hello"}))
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.EchoHandler)
@@ -95,7 +103,8 @@ defmodule ConnectRPCTest do
 
   test "maps read_body :too_large to resource_exhausted" do
     conn =
-      conn(:post, "/Echo", "")
+      :post
+      |> conn("/Echo", "")
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.EchoHandler,
@@ -108,7 +117,8 @@ defmodule ConnectRPCTest do
 
   test "maps read_body :timeout to deadline_exceeded" do
     conn =
-      conn(:post, "/Echo", "")
+      :post
+      |> conn("/Echo", "")
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.EchoHandler,
@@ -121,7 +131,8 @@ defmodule ConnectRPCTest do
 
   test "maps other body read errors to internal" do
     conn =
-      conn(:post, "/Echo", "")
+      :post
+      |> conn("/Echo", "")
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.EchoHandler,
@@ -134,7 +145,8 @@ defmodule ConnectRPCTest do
 
   test "maps decode failures to invalid_argument" do
     conn =
-      conn(:post, "/Echo", ~s({"message":))
+      :post
+      |> conn("/Echo", ~s({"message":))
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.EchoHandler)
@@ -145,7 +157,8 @@ defmodule ConnectRPCTest do
 
   test "does not invoke handler when decoding fails" do
     conn =
-      conn(:post, "/Echo", ~s({"message":))
+      :post
+      |> conn("/Echo", ~s({"message":))
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.NotifyHandler)
@@ -156,7 +169,8 @@ defmodule ConnectRPCTest do
 
   test "returns handled ConnectRPC error tuple from handler" do
     conn =
-      conn(:post, "/Fail", ~s({"message":"hello"}))
+      :post
+      |> conn("/Fail", ~s({"message":"hello"}))
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.FailHandler)
@@ -169,7 +183,8 @@ defmodule ConnectRPCTest do
 
   test "returns raised ConnectRPC error from handler" do
     conn =
-      conn(:post, "/Fail", ~s({"message":"hello"}))
+      :post
+      |> conn("/Fail", ~s({"message":"hello"}))
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.RaiseConnectErrorHandler)
@@ -180,7 +195,8 @@ defmodule ConnectRPCTest do
 
   test "returns sanitized internal error by default for unexpected exceptions" do
     conn =
-      conn(:post, "/Boom", ~s({"message":"hello"}))
+      :post
+      |> conn("/Boom", ~s({"message":"hello"}))
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.CrashHandler)
@@ -191,7 +207,8 @@ defmodule ConnectRPCTest do
 
   test "returns raw exception message when debug_exceptions is enabled" do
     conn =
-      conn(:post, "/Boom", ~s({"message":"hello"}))
+      :post
+      |> conn("/Boom", ~s({"message":"hello"}))
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.CrashHandler, debug_exceptions: true)
@@ -203,7 +220,8 @@ defmodule ConnectRPCTest do
 
   test "returns internal when handler returns wrong response type" do
     conn =
-      conn(:post, "/Mismatch", ~s({"message":"hello"}))
+      :post
+      |> conn("/Mismatch", ~s({"message":"hello"}))
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.MismatchHandler)
@@ -217,7 +235,8 @@ defmodule ConnectRPCTest do
     attach_telemetry()
 
     _conn =
-      conn(:post, "/Echo", ~s({"message":"hello"}))
+      :post
+      |> conn("/Echo", ~s({"message":"hello"}))
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.EchoHandler)
@@ -235,7 +254,8 @@ defmodule ConnectRPCTest do
     attach_telemetry()
 
     _conn =
-      conn(:post, "/Boom", ~s({"message":"hello"}))
+      :post
+      |> conn("/Boom", ~s({"message":"hello"}))
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
       |> call_rpc(TestHandlers.CrashHandler)

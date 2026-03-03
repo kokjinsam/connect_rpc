@@ -1,11 +1,13 @@
 defmodule ConnectRPC.HandlerTest do
   use ExUnit.Case, async: true
 
+  alias ConnectRPC.TestHandlers.EchoHandler
+
   test "exposes compiled service metadata through __connect_rpc__/1" do
-    assert ConnectRPC.TestHandlers.EchoHandler.__connect_rpc__(:service_name) ==
+    assert EchoHandler.__connect_rpc__(:service_name) ==
              "connectrpc.test.v1.EchoService"
 
-    methods = ConnectRPC.TestHandlers.EchoHandler.__connect_rpc__(:methods)
+    methods = EchoHandler.__connect_rpc__(:methods)
     method = methods["Echo"]
 
     assert method.function == :echo

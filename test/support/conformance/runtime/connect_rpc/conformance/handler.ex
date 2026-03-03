@@ -5,6 +5,7 @@ defmodule ConnectRPC.Conformance.Handler do
 
   alias Connectrpc.Conformance.V1
   alias Connectrpc.Conformance.V1.ConformancePayload
+  alias Google.Protobuf.Any
 
   @spec unary(V1.UnaryRequest.t(), Plug.Conn.t()) ::
           {:ok, V1.UnaryResponse.t(), keyword()}
@@ -80,7 +81,7 @@ defmodule ConnectRPC.Conformance.Handler do
     )
   end
 
-  defp any_to_detail(%Google.Protobuf.Any{} = detail) do
+  defp any_to_detail(%Any{} = detail) do
     %{
       type: strip_any_prefix(detail.type_url),
       value: detail.value
@@ -138,7 +139,7 @@ defmodule ConnectRPC.Conformance.Handler do
   end
 
   defp pack_any(%module{} = message) do
-    %Google.Protobuf.Any{
+    %Any{
       type_url: "type.googleapis.com/" <> module.full_name(),
       value: module.encode(message)
     }
