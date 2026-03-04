@@ -88,20 +88,12 @@ defmodule ConnectRPC.Handler do
   @doc false
   @spec extract_service_metadata!(module()) :: service_metadata()
   def extract_service_metadata!(service_module) when is_atom(service_module) do
-    cond do
-      function_exported?(service_module, :__connect_rpc_service__, 0) ->
-        normalize_connect_rpc_service(service_module.__connect_rpc_service__(), service_module)
-
-      function_exported?(service_module, :__rpcs__, 0) ->
-        normalize_grpc_service(service_module)
-
-      function_exported?(service_module, :descriptor, 0) ->
-        normalize_descriptor_service(service_module)
-
-      true ->
-        raise ArgumentError,
-              "Service module #{inspect(service_module)} does not expose supported service metadata. " <>
-                "Expected __connect_rpc_service__/0, __rpcs__/0, or descriptor/0."
+    if function_exported?(service_module, :__connect_rpc_service__, 0) do
+      normalize_connect_rpc_service(service_module.__connect_rpc_service__(), service_module)
+    else
+      raise ArgumentError,
+            "Service module #{inspect(service_module)} must export __connect_rpc_service__/0. " <>
+              "See the ConnectRPC.Handler documentation for the expected format."
     end
   end
 
@@ -121,66 +113,6 @@ defmodule ConnectRPC.Handler do
 
     methods =
       normalize_methods(metadata_map[:methods] || metadata_map["methods"] || [], service_module)
-
-    %{service_name: service_name, methods: methods}
-  end
-
-  defp normalize_grpc_service(service_module) do
-    service_name =
-      cond do
-        function_exported?(service_module, :__service_name__, 0) ->
-          service_module.__service_name__()
-
-        function_exported?(service_module, :service_name, 0) ->
-          service_module.service_name()
-
-        true ->
-          infer_service_name(service_module)
-      end
-
-    methods =
-      service_module
-      |> apply(:__rpcs__, [])
-      |> normalize_methods(service_module)
-
-    %{service_name: service_name, methods: methods}
-  end
-
-  defp normalize_descriptor_service(service_module) do
-    descriptor = service_module.descriptor()
-    method_descriptors = Map.get(descriptor, :method, [])
-
-    service_name =
-      cond do
-        function_exported?(service_module, :__service_name__, 0) ->
-          service_module.__service_name__()
-
-        function_exported?(service_module, :service_name, 0) ->
-          service_module.service_name()
-
-        true ->
-          Map.get(descriptor, :name) || infer_service_name(service_module)
-      end
-
-    methods =
-      Enum.map(method_descriptors, fn method ->
-        method_name = method |> Map.get(:name) |> to_string()
-
-        %{
-          name: method_name,
-          function: method_name |> Macro.underscore() |> String.to_atom(),
-          request:
-            method
-            |> Map.get(:input_type)
-            |> resolve_type_module(service_module),
-          response:
-            method
-            |> Map.get(:output_type)
-            |> resolve_type_module(service_module),
-          client_streaming?: Map.get(method, :client_streaming, false),
-          server_streaming?: Map.get(method, :server_streaming, false)
-        }
-      end)
 
     %{service_name: service_name, methods: methods}
   end

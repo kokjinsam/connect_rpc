@@ -7,6 +7,8 @@ defmodule ConnectRPC.Protocol do
   alias ConnectRPC.Codec.Proto
   alias ConnectRPC.Error
 
+  require Logger
+
   @status_by_code %{
     canceled: 499,
     unknown: 500,
@@ -33,7 +35,7 @@ defmodule ConnectRPC.Protocol do
   def validate_post(%Plug.Conn{method: "POST"}), do: :ok
 
   def validate_post(_conn) do
-    {:error, Error.new(:unimplemented, "Only POST is supported"), 405}
+    {:error, Error.new(:unknown, "Only POST is supported"), 405}
   end
 
   @doc """
@@ -56,20 +58,17 @@ defmodule ConnectRPC.Protocol do
   @doc """
   Negotiates the request codec from `Content-Type`.
   """
-  @spec negotiate_codec(Plug.Conn.t()) ::
+  @spec negotiate_codec(Plug.Conn.t(), [module()]) ::
           {:ok, module()} | {:error, Error.t(), pos_integer()}
-  def negotiate_codec(conn) do
+  def negotiate_codec(conn, codecs \\ [Proto, JSON]) do
     content_type = content_type(conn)
 
-    case content_type do
-      "application/proto" ->
-        {:ok, Proto}
+    case Enum.find(codecs, &(codec_media_type(&1) == content_type)) do
+      nil ->
+        {:error, Error.new(:unknown, "Unsupported content type: #{content_type}"), 415}
 
-      "application/json" ->
-        {:ok, JSON}
-
-      other ->
-        {:error, Error.new(:invalid_argument, "Unsupported content type: #{other}"), 415}
+      codec ->
+        {:ok, codec}
     end
   end
 
@@ -110,11 +109,19 @@ defmodule ConnectRPC.Protocol do
   @spec send_error(Plug.Conn.t(), Error.t(), pos_integer() | nil) :: Plug.Conn.t()
   def send_error(conn, %Error{} = error, status \\ nil) do
     status = status || code_to_status(error.code)
-    body = encode_error(error)
+
+    {final_status, body} =
+      try do
+        {status, encode_error(error)}
+      rescue
+        exception ->
+          Logger.error("Failed to encode error details: #{Exception.message(exception)}")
+          {500, Jason.encode!(%{"code" => "internal", "message" => "internal error"})}
+      end
 
     conn
-    |> put_resp_content_type("application", "json")
-    |> send_resp(status, body)
+    |> put_resp_header("content-type", "application/json")
+    |> send_resp(final_status, body)
   end
 
   @doc """
@@ -154,46 +161,49 @@ defmodule ConnectRPC.Protocol do
   end
 
   defp encode_detail(%module{} = detail) do
-    type = detail_type(module)
-
-    value =
-      try do
-        detail
-        |> module.encode()
-        |> Base.encode64()
-      rescue
-        _exception -> ""
-      end
-
+    type = detail_type!(module)
+    value = detail |> module.encode() |> Base.encode64(padding: false)
     %{"type" => type, "value" => value}
   end
 
   defp encode_detail(%{type: type, value: value}) when is_binary(type) and is_binary(value) do
-    %{"type" => type, "value" => Base.encode64(value)}
+    %{"type" => type, "value" => Base.encode64(value, padding: false)}
   end
 
   defp encode_detail(%{"type" => type, "value" => value}) when is_binary(type) and is_binary(value) do
-    %{"type" => type, "value" => Base.encode64(value)}
+    %{"type" => type, "value" => Base.encode64(value, padding: false)}
   end
 
   defp encode_detail(detail) do
-    %{
-      "type" => "Elixir.Term",
-      "value" => detail |> inspect() |> Base.encode64()
-    }
+    raise ArgumentError,
+          "Unsupported error detail #{inspect(detail)}. Error details must be protobuf-generated message structs or %{type: type, value: binary} maps."
   end
 
-  defp detail_type(module) do
-    if function_exported?(module, :full_name, 0) do
-      case module.full_name() do
-        name when is_binary(name) and name != "" ->
-          name
+  defp detail_type!(module) do
+    case full_name(module) do
+      name when is_binary(name) and name != "" ->
+        name
 
-        _other ->
-          module |> Module.split() |> Enum.join(".")
-      end
-    else
-      module |> Module.split() |> Enum.join(".")
+      _other ->
+        raise ArgumentError, detail_full_name_error(module)
     end
+  end
+
+  defp full_name(module) do
+    apply(module, :full_name, [])
+  rescue
+    UndefinedFunctionError -> nil
+  end
+
+  defp detail_full_name_error(module) do
+    "Detail struct #{inspect(module)} does not expose full_name/0. " <>
+      "Error details must be protobuf-generated message structs (protobuf-elixir >= 0.15.0)."
+  end
+
+  defp codec_media_type(codec) do
+    codec
+    |> apply(:media_type, [])
+    |> to_string()
+    |> String.downcase()
   end
 end
