@@ -5,7 +5,7 @@ defmodule GreeterExample.MixProject do
     [
       app: :greeter_example,
       version: "0.1.0",
-      elixir: "~> 1.19",
+      elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -23,7 +23,7 @@ defmodule GreeterExample.MixProject do
       {:connect_rpc, path: "../.."},
       {:phoenix, "~> 1.7"},
       {:plug_cowboy, "~> 2.7"},
-      {:protobuf, "~> 0.14"},
+      {:protobuf, "~> 0.15"},
       {:jason, "~> 1.4"}
     ]
   end

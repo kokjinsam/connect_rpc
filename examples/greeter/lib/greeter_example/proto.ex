@@ -1,19 +1,3 @@
-defmodule GreeterExample.Greet.V1.SayRequest do
-  @moduledoc false
-
-  use Protobuf, syntax: :proto3
-
-  field(:name, 1, type: :string)
-end
-
-defmodule GreeterExample.Greet.V1.SayResponse do
-  @moduledoc false
-
-  use Protobuf, syntax: :proto3
-
-  field(:greeting, 1, type: :string)
-end
-
 defmodule GreeterExample.Greet.V1.GreeterService do
   @moduledoc false
 
