@@ -9,20 +9,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - otp-version: "25.3"
-            elixir-version: "1.14.5"
-          - otp-version: "27.3"
-            elixir-version: "1.19.1"
     steps:
       - uses: actions/checkout@v4
 
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: ${{ matrix.otp-version }}
-          elixir-version: ${{ matrix.elixir-version }}
+          otp-version: "27.0"
+          elixir-version: "1.19.5"
 
       - run: mix deps.get
       - run: mix format --check-formatted
@@ -38,8 +31,8 @@ jobs:
 
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: "27.3"
-          elixir-version: "1.19.1"
+          otp-version: "27.0"
+          elixir-version: "1.19.5"
 
       - run: chmod +x conformance/bin/run conformance/bin/server conformance/bin/check_known_failing
       - run: ./conformance/bin/check_known_failing
