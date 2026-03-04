@@ -1,11 +1,12 @@
 defmodule ConnectRPC.Codec.Proto do
-  @moduledoc false
+  @moduledoc """
+  Protocol Buffers binary codec for ConnectRPC using `application/proto` content type.
+  """
+
+  @behaviour ConnectRPC.Codec
 
   @type decode_error :: Exception.t() | term()
   @type encode_error :: Exception.t() | term()
-
-  @spec id() :: :proto
-  def id, do: :proto
 
   @spec media_type() :: String.t()
   def media_type, do: "application/proto"
