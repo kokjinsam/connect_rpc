@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+KNOWN_FAILING_PATH="$ROOT_DIR/conformance/known-failing/server.txt"
+
+if [[ "${CONNECTRPC_ALLOW_KNOWN_FAILING:-0}" == "1" ]]; then
+  echo "known-failing guard bypassed via CONNECTRPC_ALLOW_KNOWN_FAILING=1"
+  exit 0
+fi
+
+if [[ ! -f "$KNOWN_FAILING_PATH" ]]; then
+  echo "missing known-failing file: $KNOWN_FAILING_PATH" >&2
+  exit 1
+fi
+
+active_entries="$(grep -nE '^[[:space:]]*[^#[:space:]]' "$KNOWN_FAILING_PATH" || true)"
+
+if [[ -n "$active_entries" ]]; then
+  echo "known-failing list must be empty for CI/release gates: $KNOWN_FAILING_PATH" >&2
+  echo "$active_entries" >&2
+  echo "Set CONNECTRPC_ALLOW_KNOWN_FAILING=1 only for temporary local bypass." >&2
+  exit 1
+fi
+
+echo "known-failing guard passed: no active entries in $KNOWN_FAILING_PATH"

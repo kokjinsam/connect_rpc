@@ -15,4 +15,4 @@ features:
   supportsTlsClientCerts: false
   supportsTrailers: false
   supportsConnectGet: false
-  supportsMessageReceiveLimit: true
+  supportsMessageReceiveLimit: false
