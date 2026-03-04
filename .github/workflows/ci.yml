@@ -9,17 +9,26 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - otp-version: "25.3"
+            elixir-version: "1.14.5"
+          - otp-version: "27.3"
+            elixir-version: "1.19.1"
     steps:
       - uses: actions/checkout@v4
 
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: "27.3"
-          elixir-version: "1.19.1"
+          otp-version: ${{ matrix.otp-version }}
+          elixir-version: ${{ matrix.elixir-version }}
 
       - run: mix deps.get
-      - run: mix test
-      - run: cd examples/greeter && mix deps.get && mix test
+      - run: mix format --check-formatted
+      - run: MIX_ENV=test mix compile --warnings-as-errors
+      - run: MIX_ENV=test mix test
+      - run: cd examples/greeter && mix deps.get && MIX_ENV=test mix test
 
   conformance:
     runs-on: ubuntu-latest
@@ -32,5 +41,6 @@ jobs:
           otp-version: "27.3"
           elixir-version: "1.19.1"
 
-      - run: chmod +x conformance/bin/run conformance/bin/server
+      - run: chmod +x conformance/bin/run conformance/bin/server conformance/bin/check_known_failing
+      - run: ./conformance/bin/check_known_failing
       - run: ./conformance/bin/run

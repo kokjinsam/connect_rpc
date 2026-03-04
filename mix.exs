@@ -2,13 +2,13 @@ defmodule ConnectRPC.MixProject do
   use Mix.Project
 
   @version "0.1.0"
-  @source_url "https://github.com/YOUR_ORG/connect_rpc"
+  @source_url "https://github.com/kokjinsam/connect_rpc"
 
   def project do
     [
       app: :connect_rpc,
       version: @version,
-      elixir: "~> 1.19",
+      elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -29,6 +29,7 @@ defmodule ConnectRPC.MixProject do
   defp elixirc_paths(:test) do
     [
       "lib",
+      "test/support/gen",
       "test/support/conformance/runtime",
       "test/support/conformance/gen"
     ]
@@ -40,7 +41,7 @@ defmodule ConnectRPC.MixProject do
     [
       {:jason, "~> 1.4"},
       {:plug, "~> 1.14"},
-      {:protobuf, "~> 0.14"},
+      {:protobuf, "~> 0.15"},
       {:telemetry, "~> 1.0"},
 
       # Dev/test
