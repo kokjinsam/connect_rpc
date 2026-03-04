@@ -30,8 +30,8 @@ defmodule ConnectRPC.MixProject do
     [
       "lib",
       "test/support/gen",
-      "test/support/conformance/runtime",
-      "test/support/conformance/gen"
+      "conformance/runtime",
+      "conformance/gen"
     ]
   end
 
