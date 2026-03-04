@@ -14,14 +14,14 @@ defmodule ConnectRPC.Conformance.Handler do
     request_info = build_request_info(conn, [pack_any(request)])
 
     response_definition = request.response_definition
-    headers = response_headers(response_definition)
+    response_metadata = response_metadata(response_definition)
     delay_ms = response_delay_ms(response_definition)
 
     result =
       case response_choice(response_definition) do
         {:error, %V1.Error{} = requested_error} ->
           connect_error = to_connect_error(requested_error, request_info)
-          {:error, connect_error, headers: headers}
+          {:error, connect_error, response_metadata}
 
         {:response_data, data} ->
           response = %V1.UnaryResponse{
@@ -31,11 +31,11 @@ defmodule ConnectRPC.Conformance.Handler do
             }
           }
 
-          {:ok, response, headers: headers}
+          {:ok, response, response_metadata}
 
         :none ->
           response = %V1.UnaryResponse{payload: %ConformancePayload{request_info: request_info}}
-          {:ok, response, headers: headers}
+          {:ok, response, response_metadata}
       end
 
     maybe_sleep(delay_ms)
@@ -46,13 +46,26 @@ defmodule ConnectRPC.Conformance.Handler do
   defp response_choice(%{response: nil}), do: :none
   defp response_choice(%{response: response}), do: response
 
-  defp response_headers(nil), do: []
+  defp response_metadata(nil), do: %{response_headers: [], response_trailers: []}
 
-  defp response_headers(%{response_headers: headers}) when is_list(headers) do
-    headers
+  defp response_metadata(%{response_headers: headers, response_trailers: trailers}) do
+    %{
+      response_headers: normalize_metadata_entries(headers),
+      response_trailers: normalize_metadata_entries(trailers)
+    }
   end
 
-  defp response_headers(_), do: []
+  defp response_metadata(%{response_headers: headers}) do
+    %{
+      response_headers: normalize_metadata_entries(headers),
+      response_trailers: []
+    }
+  end
+
+  defp response_metadata(_), do: %{response_headers: [], response_trailers: []}
+
+  defp normalize_metadata_entries(entries) when is_list(entries), do: entries
+  defp normalize_metadata_entries(_entries), do: []
 
   defp response_delay_ms(nil), do: 0
 

@@ -3,13 +3,28 @@ defmodule ConnectRPC.ProtocolTest do
 
   import Plug.Test
 
+  alias ConnectRPC.Codec.JSON
   alias ConnectRPC.Protocol
+
+  defmodule CustomJSONCodec do
+    @moduledoc false
+    def media_type, do: "application/json"
+    def encode(_struct), do: {:ok, "{}"}
+    def decode(_payload, _module), do: {:error, :not_implemented}
+  end
+
+  defmodule DetailWithoutFullName do
+    @moduledoc false
+    defstruct [:reason]
+
+    def encode(_detail), do: <<1, 2, 3>>
+  end
 
   test "validate_post/1 accepts POST and rejects others" do
     assert :ok = Protocol.validate_post(conn(:post, "/", ""))
 
     assert {:error, error, 405} = Protocol.validate_post(conn(:get, "/", ""))
-    assert error.code == :unimplemented
+    assert error.code == :unknown
   end
 
   test "validate_protocol_version/1 requires version 1 header" do
@@ -24,7 +39,7 @@ defmodule ConnectRPC.ProtocolTest do
     json_conn =
       :post |> conn("/", "") |> Plug.Conn.put_req_header("content-type", "application/json")
 
-    assert {:ok, ConnectRPC.Codec.JSON} = Protocol.negotiate_codec(json_conn)
+    assert {:ok, JSON} = Protocol.negotiate_codec(json_conn)
 
     proto_conn =
       :post
@@ -35,7 +50,15 @@ defmodule ConnectRPC.ProtocolTest do
 
     bad_conn = :post |> conn("/", "") |> Plug.Conn.put_req_header("content-type", "text/plain")
     assert {:error, error, 415} = Protocol.negotiate_codec(bad_conn)
-    assert error.code == :invalid_argument
+    assert error.code == :unknown
+  end
+
+  test "negotiate_codec/2 honors codec list order" do
+    json_conn =
+      :post |> conn("/", "") |> Plug.Conn.put_req_header("content-type", "application/json")
+
+    assert {:ok, CustomJSONCodec} =
+             Protocol.negotiate_codec(json_conn, [CustomJSONCodec, JSON])
   end
 
   test "validate_compression/1 rejects non-identity encoding" do
@@ -62,8 +85,18 @@ defmodule ConnectRPC.ProtocolTest do
     assert payload["code"] == "invalid_argument"
     assert payload["message"] == "invalid"
     assert [%{"type" => type, "value" => value}] = payload["details"]
-    assert type == "ConnectRPC.TestProto.Detail"
+    assert type == "connectrpc.test.v1.Detail"
     assert is_binary(value)
     assert byte_size(value) > 0
+    refute String.ends_with?(value, "=")
+  end
+
+  test "error_payload/1 raises when detail struct does not expose full_name/0" do
+    detail = %DetailWithoutFullName{reason: "required"}
+    error = ConnectRPC.Error.new(:invalid_argument, "invalid", [detail])
+
+    assert_raise ArgumentError, ~r/does not expose full_name\/0/, fn ->
+      Protocol.error_payload(error)
+    end
   end
 end

@@ -14,14 +14,7 @@ defmodule ConnectRPC.Conformance.Server do
     with :ok <- validate_protocol(request.protocol),
          :ok <- validate_http_version(request.http_version),
          :ok <- validate_tls(request.use_tls) do
-      read_body_opts =
-        if request.message_receive_limit > 0 do
-          [length: request.message_receive_limit]
-        else
-          []
-        end
-
-      plug = {ConnectRPC.Conformance.Plug, read_body_opts: read_body_opts}
+      plug = {ConnectRPC.Conformance.Plug, []}
 
       case start_bandit(plug) do
         {:ok, server_pid} ->

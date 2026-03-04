@@ -8,16 +8,10 @@ defmodule ConnectRPC.Conformance.Plug do
   @service_prefix "/connectrpc.conformance.v1.ConformanceService"
 
   @impl Plug
-  def init(opts) do
-    read_body_opts = Keyword.get(opts, :read_body_opts, [])
-
+  def init(_opts) do
     %{
       service_prefix: @service_prefix,
-      connect_opts:
-        ConnectRPC.init(
-          handler: ConnectRPC.Conformance.Handler,
-          read_body_opts: read_body_opts
-        )
+      connect_opts: ConnectRPC.init(handler: ConnectRPC.Conformance.Handler)
     }
   end
 

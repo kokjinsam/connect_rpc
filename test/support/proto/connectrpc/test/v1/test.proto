@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package connectrpc.test.v1;
+
+import "elixirpb.proto";
+
+option (elixirpb.file).module_prefix = "ConnectRPC.TestProto";
+
+message EchoRequest {
+  string message = 1;
+}
+
+message EchoResponse {
+  string message = 1;
+}
+
+message Detail {
+  string reason = 1;
+}

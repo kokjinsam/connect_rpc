@@ -18,8 +18,7 @@ defmodule ConnectRPC.Codec.ProtoTest do
     assert {:error, _reason} = Proto.decode(<<255, 255>>, EchoRequest)
   end
 
-  test "returns metadata helpers" do
-    assert Proto.id() == :proto
+  test "returns media type" do
     assert Proto.media_type() == "application/proto"
   end
 
