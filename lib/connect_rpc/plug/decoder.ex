@@ -19,7 +19,11 @@ defmodule ConnectRPC.Plug.Decoder do
   @impl Plug
   def call(conn, %{read_body_opts: read_body_opts, read_body_fun: read_body_fun}) do
     rpc_meta = conn.private.connect_rpc_rpc
-    codec = conn.assigns.connect_rpc_codec
+
+    codec =
+      conn.assigns[:connect_rpc_codec] ||
+        raise RuntimeError,
+              "No codec assigned. Ensure ConnectRPC.Plug.Codec runs before ConnectRPC.Plug.Decoder."
 
     with :ok <- validate_body_parser_ownership(conn),
          {:ok, body, conn} <- read_full_body(conn, read_body_fun, read_body_opts),

@@ -129,10 +129,14 @@ defmodule ConnectRPC.Protocol do
   """
   @spec error_payload(Error.t()) :: map()
   def error_payload(%Error{} = error) do
-    payload = %{
-      "code" => Atom.to_string(Error.normalize_code(error.code)),
-      "message" => error.message
-    }
+    payload = %{"code" => Atom.to_string(Error.normalize_code(error.code))}
+
+    payload =
+      case error.message do
+        "" -> payload
+        nil -> payload
+        msg -> Map.put(payload, "message", msg)
+      end
 
     case Enum.map(error.details, &encode_detail/1) do
       [] -> payload

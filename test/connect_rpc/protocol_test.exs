@@ -91,6 +91,13 @@ defmodule ConnectRPC.ProtocolTest do
     refute String.ends_with?(value, "=")
   end
 
+  test "error_payload/1 omits message when empty" do
+    payload = Protocol.error_payload(ConnectRPC.Error.new(:invalid_argument, ""))
+
+    assert payload["code"] == "invalid_argument"
+    refute Map.has_key?(payload, "message")
+  end
+
   test "error_payload/1 raises when detail struct does not expose full_name/0" do
     detail = %DetailWithoutFullName{reason: "required"}
     error = ConnectRPC.Error.new(:invalid_argument, "invalid", [detail])

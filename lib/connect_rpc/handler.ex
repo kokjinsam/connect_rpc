@@ -12,7 +12,8 @@ defmodule ConnectRPC.Handler do
   require Logger
 
   @double_send_error_message "Handler sent a response directly via Plug.Conn. Use {:ok, response} or {:error, %ConnectRPC.Error{}} return values instead."
-  @header_name_regex ~r/^[!#$%&'*+\-.^_`|~0-9a-z]+$/
+  @metadata_name_regex ~r/^[0-9a-z_.-]+$/
+  @ascii_metadata_value_regex ~r/^[\x20-\x7E]+$/
 
   defmacro __using__(opts \\ []) do
     debug_exceptions = Keyword.get(opts, :debug_exceptions, false)
@@ -323,14 +324,15 @@ defmodule ConnectRPC.Handler do
   end
 
   defp normalize_metadata_entry!({name, value}, kind, index) when is_binary(name) and is_binary(value) do
-    [{normalize_header_name!(name, kind, index), normalize_header_value!(value, kind, index)}]
+    normalized_name = normalize_header_name!(name, kind, index)
+    [{normalized_name, normalize_header_value!(normalized_name, value, kind, index)}]
   end
 
   defp normalize_metadata_entry!({name, values}, kind, index) when is_binary(name) and is_list(values) do
     normalized_name = normalize_header_name!(name, kind, index)
 
     Enum.with_index(values, fn value, value_index ->
-      {normalized_name, normalize_header_value!(value, kind, {index, value_index})}
+      {normalized_name, normalize_header_value!(normalized_name, value, kind, {index, value_index})}
     end)
   end
 
@@ -340,7 +342,7 @@ defmodule ConnectRPC.Handler do
     normalized_name = normalize_header_name!(name, kind, index)
 
     Enum.with_index(values, fn value, value_index ->
-      {normalized_name, normalize_header_value!(value, kind, {index, value_index})}
+      {normalized_name, normalize_header_value!(normalized_name, value, kind, {index, value_index})}
     end)
   end
 
@@ -386,26 +388,61 @@ defmodule ConnectRPC.Handler do
         raise ArgumentError,
               "Expected #{kind} metadata entry #{format_metadata_index(index)} to have a non-empty header name"
 
-      Regex.match?(@header_name_regex, normalized_name) ->
+      String.starts_with?(normalized_name, "connect-") ->
+        raise ArgumentError,
+              "Invalid #{kind} header name #{inspect(name)} at #{format_metadata_index(index)}. " <>
+                "Header names beginning with \"connect-\" are reserved by Connect."
+
+      Regex.match?(@metadata_name_regex, normalized_name) ->
         normalized_name
 
       true ->
         raise ArgumentError,
               "Invalid #{kind} header name #{inspect(name)} at #{format_metadata_index(index)}. " <>
-                "Header names must use RFC 7230 token characters."
+                "Header names must match [0-9a-z_.-]."
     end
   end
 
-  defp normalize_header_value!(value, kind, index) do
+  defp normalize_header_value!(name, value, kind, index) do
     normalized_value = to_string(value)
 
-    if String.contains?(normalized_value, "\r") or String.contains?(normalized_value, "\n") do
+    if String.ends_with?(name, "-bin") do
+      normalize_binary_header_value!(normalized_value, kind, index)
+    else
+      normalize_ascii_header_value!(normalized_value, kind, index)
+    end
+  end
+
+  defp normalize_ascii_header_value!(value, kind, index) do
+    if Regex.match?(@ascii_metadata_value_regex, value) do
+      value
+    else
       raise ArgumentError,
             "Invalid #{kind} header value at #{format_metadata_index(index)}. " <>
-              "Header values must not contain CR/LF characters."
+              "Non-binary metadata values must use printable ASCII characters."
     end
+  end
 
-    normalized_value
+  defp normalize_binary_header_value!(value, kind, index) do
+    case decode_base64(value) do
+      {:ok, decoded} ->
+        Base.encode64(decoded, padding: false)
+
+      :error ->
+        raise ArgumentError,
+              "Invalid #{kind} binary header value at #{format_metadata_index(index)}. " <>
+                "Binary metadata values must be base64 (padded or unpadded)."
+    end
+  end
+
+  defp decode_base64(value) do
+    case Base.decode64(value) do
+      {:ok, decoded} ->
+        {:ok, decoded}
+
+      :error ->
+        Base.decode64(value, padding: false)
+    end
   end
 
   defp format_metadata_index({entry_index, value_index}), do: "#{entry_index}.#{value_index}"

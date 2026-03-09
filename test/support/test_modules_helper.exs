@@ -126,6 +126,81 @@ defmodule ConnectRPC.TestHandlers.MetadataInvalidHandler do
   end
 end
 
+defmodule ConnectRPC.TestHandlers.MetadataReservedHandler do
+  @moduledoc false
+  use ConnectRPC.Handler
+
+  alias ConnectRPC.TestProto.EchoRequest
+  alias ConnectRPC.TestProto.EchoResponse
+
+  def echo(_conn, %EchoRequest{message: message}) do
+    metadata = %{
+      response_headers: [
+        %{name: "connect-custom", value: ["reserved"]}
+      ]
+    }
+
+    {:ok, %EchoResponse{message: message}, metadata}
+  end
+end
+
+defmodule ConnectRPC.TestHandlers.MetadataAsciiInvalidHandler do
+  @moduledoc false
+  use ConnectRPC.Handler
+
+  alias ConnectRPC.TestProto.EchoRequest
+  alias ConnectRPC.TestProto.EchoResponse
+
+  def echo(_conn, %EchoRequest{message: message}) do
+    metadata = %{
+      response_headers: [
+        %{name: "x-meta-ascii", value: ["héllo"]}
+      ]
+    }
+
+    {:ok, %EchoResponse{message: message}, metadata}
+  end
+end
+
+defmodule ConnectRPC.TestHandlers.MetadataBinaryHandler do
+  @moduledoc false
+  use ConnectRPC.Handler
+
+  alias ConnectRPC.TestProto.EchoRequest
+  alias ConnectRPC.TestProto.EchoResponse
+
+  def echo(_conn, %EchoRequest{message: message}) do
+    metadata = %{
+      response_headers: [
+        %{name: "x-meta-bytes-bin", value: ["AQI="]}
+      ],
+      response_trailers: [
+        %{name: "x-meta-trailer-bytes-bin", value: ["AQI="]}
+      ]
+    }
+
+    {:ok, %EchoResponse{message: message}, metadata}
+  end
+end
+
+defmodule ConnectRPC.TestHandlers.MetadataBinaryInvalidHandler do
+  @moduledoc false
+  use ConnectRPC.Handler
+
+  alias ConnectRPC.TestProto.EchoRequest
+  alias ConnectRPC.TestProto.EchoResponse
+
+  def echo(_conn, %EchoRequest{message: message}) do
+    metadata = %{
+      response_headers: [
+        %{name: "x-meta-bytes-bin", value: ["###not-base64###"]}
+      ]
+    }
+
+    {:ok, %EchoResponse{message: message}, metadata}
+  end
+end
+
 defmodule ConnectRPC.TestHandlers.BadDetailHandler do
   @moduledoc false
   use ConnectRPC.Handler
@@ -237,6 +312,34 @@ defmodule ConnectRPC.TestRouter do
   end
 
   service "/connectrpc.test.v1.MetadataInvalidService", ConnectRPC.TestHandlers.MetadataInvalidHandler do
+    rpc("/Echo", :echo,
+      request: EchoRequest,
+      response: EchoResponse
+    )
+  end
+
+  service "/connectrpc.test.v1.MetadataReservedService", ConnectRPC.TestHandlers.MetadataReservedHandler do
+    rpc("/Echo", :echo,
+      request: EchoRequest,
+      response: EchoResponse
+    )
+  end
+
+  service "/connectrpc.test.v1.MetadataAsciiInvalidService", ConnectRPC.TestHandlers.MetadataAsciiInvalidHandler do
+    rpc("/Echo", :echo,
+      request: EchoRequest,
+      response: EchoResponse
+    )
+  end
+
+  service "/connectrpc.test.v1.MetadataBinaryService", ConnectRPC.TestHandlers.MetadataBinaryHandler do
+    rpc("/Echo", :echo,
+      request: EchoRequest,
+      response: EchoResponse
+    )
+  end
+
+  service "/connectrpc.test.v1.MetadataBinaryInvalidService", ConnectRPC.TestHandlers.MetadataBinaryInvalidHandler do
     rpc("/Echo", :echo,
       request: EchoRequest,
       response: EchoResponse

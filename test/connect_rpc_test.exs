@@ -226,6 +226,51 @@ defmodule ConnectRPCTest do
     assert %{"code" => "internal", "message" => "internal error"} = Jason.decode!(conn.resp_body)
   end
 
+  test "returns internal when response metadata uses reserved connect- header names" do
+    conn =
+      call_router(:post, "/connectrpc.test.v1.MetadataReservedService/Echo", ~s({"message":"hello"}), [
+        {"content-type", "application/json"},
+        {"connect-protocol-version", "1"}
+      ])
+
+    assert conn.status == 500
+    assert %{"code" => "internal", "message" => "internal error"} = Jason.decode!(conn.resp_body)
+  end
+
+  test "returns internal when non-binary metadata values are not printable ASCII" do
+    conn =
+      call_router(:post, "/connectrpc.test.v1.MetadataAsciiInvalidService/Echo", ~s({"message":"hello"}), [
+        {"content-type", "application/json"},
+        {"connect-protocol-version", "1"}
+      ])
+
+    assert conn.status == 500
+    assert %{"code" => "internal", "message" => "internal error"} = Jason.decode!(conn.resp_body)
+  end
+
+  test "normalizes binary metadata values to unpadded base64" do
+    conn =
+      call_router(:post, "/connectrpc.test.v1.MetadataBinaryService/Echo", ~s({"message":"hello"}), [
+        {"content-type", "application/json"},
+        {"connect-protocol-version", "1"}
+      ])
+
+    assert conn.status == 200
+    assert get_resp_header(conn, "x-meta-bytes-bin") == ["AQI"]
+    assert get_resp_header(conn, "trailer-x-meta-trailer-bytes-bin") == ["AQI"]
+  end
+
+  test "returns internal when binary metadata values are not base64" do
+    conn =
+      call_router(:post, "/connectrpc.test.v1.MetadataBinaryInvalidService/Echo", ~s({"message":"hello"}), [
+        {"content-type", "application/json"},
+        {"connect-protocol-version", "1"}
+      ])
+
+    assert conn.status == 500
+    assert %{"code" => "internal", "message" => "internal error"} = Jason.decode!(conn.resp_body)
+  end
+
   test "falls back to internal error when error detail encoding fails" do
     conn =
       call_router(:post, "/connectrpc.test.v1.BadDetailService/Fail", ~s({"message":"hello"}), [

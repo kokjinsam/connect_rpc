@@ -77,4 +77,17 @@ defmodule ConnectRPC.Plug.DecoderTest do
     assert conn.status == 400
     assert %{"code" => "invalid_argument"} = Jason.decode!(conn.resp_body)
   end
+
+  test "raises when codec was not assigned by upstream plug" do
+    conn =
+      :post
+      |> conn("/", ~s({"message":"hello"}))
+      |> put_private(:connect_rpc_rpc, %{request: EchoRequest})
+
+    assert_raise RuntimeError,
+                 ~r/No codec assigned\. Ensure ConnectRPC\.Plug\.Codec runs before ConnectRPC\.Plug\.Decoder\./,
+                 fn ->
+                   Decoder.call(conn, Decoder.init([]))
+                 end
+  end
 end
