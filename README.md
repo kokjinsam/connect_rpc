@@ -1,10 +1,8 @@
 # ConnectRPC
 
-ConnectRPC-compatible server for Elixir, implemented as a [Plug](https://github.com/elixir-plug/plug).
+ConnectRPC-compatible server for Elixir, implemented as a Phoenix router DSL.
 
-Works with [Phoenix.Router](https://hexdocs.pm/phoenix/Phoenix.Router.html), [Plug.Router](https://hexdocs.pm/plug/Plug.Router.html), or any Plug-compatible pipeline. Runs under Bandit or Cowboy.
-
-v0.1.0 supports **unary RPCs** with the **Connect protocol**. Streaming, gRPC, and gRPC-Web are planned for future releases.
+`connect_rpc` v0.2.0 targets [Phoenix.Router](https://hexdocs.pm/phoenix/Phoenix.Router.html) and supports unary RPCs over the Connect protocol.
 
 ## Installation
 
@@ -13,7 +11,7 @@ Add `connect_rpc` to your dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:connect_rpc, "~> 0.1.0"}
+    {:connect_rpc, "~> 0.2.0"}
   ]
 end
 ```
@@ -22,7 +20,7 @@ Requires `protobuf` ~> 0.15 for `full_name/0` support on error detail structs.
 
 ## Quick Start
 
-### 1. Define protobuf messages and service
+### 1. Define protobuf messages
 
 Generate Elixir modules from `.proto` files using [protobuf-elixir](https://github.com/elixir-protobuf/protobuf), or define them manually:
 
@@ -36,63 +34,34 @@ defmodule MyApp.Greet.V1.SayResponse do
   use Protobuf, syntax: :proto3
   field :greeting, 1, type: :string
 end
-
-defmodule MyApp.Greet.V1.GreeterService do
-  def __connect_rpc_service__ do
-    %{
-      name: "connectrpc.greet.v1.GreeterService",
-      methods: [
-        %{
-          name: "Say",
-          request: MyApp.Greet.V1.SayRequest,
-          response: MyApp.Greet.V1.SayResponse
-        }
-      ]
-    }
-  end
-end
 ```
 
 ### 2. Implement a handler
 
-Each RPC method maps to a snake_case function in the handler:
+Each RPC method maps to a handler function with the signature `(conn, request)`:
 
 ```elixir
 defmodule MyApp.GreeterHandler do
-  use ConnectRPC.Handler, service: MyApp.Greet.V1.GreeterService
+  use ConnectRPC.Handler
 
-  def say(%MyApp.Greet.V1.SayRequest{name: name}, _conn) do
+  def say(_conn, %MyApp.Greet.V1.SayRequest{name: name}) do
     {:ok, %MyApp.Greet.V1.SayResponse{greeting: "Hello, #{name}!"}}
   end
 end
 ```
 
-### 3. Mount in your router
-
-**Phoenix:**
+### 3. Add ConnectRPC routes in your Phoenix router
 
 ```elixir
-defmodule MyApp.Router do
-  use Phoenix.Router
+defmodule MyAppWeb.Router do
+  use MyAppWeb, :router
+  use ConnectRPC.Router
 
-  forward "/connectrpc.greet.v1.GreeterService",
-    ConnectRPC,
-    handler: MyApp.GreeterHandler
-end
-```
-
-**Plug.Router:**
-
-```elixir
-defmodule MyApp.Router do
-  use Plug.Router
-
-  plug :match
-  plug :dispatch
-
-  forward "/connectrpc.greet.v1.GreeterService",
-    to: ConnectRPC,
-    init_opts: [handler: MyApp.GreeterHandler]
+  service "/connectrpc.greet.v1.GreeterService", MyApp.GreeterHandler do
+    rpc "/Say", :say,
+      request: MyApp.Greet.V1.SayRequest,
+      response: MyApp.Greet.V1.SayResponse
+  end
 end
 ```
 
@@ -109,20 +78,21 @@ curl -X POST http://localhost:4000/connectrpc.greet.v1.GreeterService/Say \
 
 ## Handler Return Values
 
-Handlers receive the decoded request struct and the `Plug.Conn`, and must return one of:
+Handlers must return one of:
 
-- `{:ok, response_struct}` - success
-- `{:ok, response_struct, metadata}` - success with response headers/trailers
-- `{:error, %ConnectRPC.Error{}}` - Connect error
-- `{:error, %ConnectRPC.Error{}, metadata}` - Connect error with response headers/trailers
-- `raise ConnectRPC.Error, code: :not_found, message: "..."` - raised Connect error
+- `{:ok, response_struct}`
+- `{:ok, response_struct, metadata}`
+- `{:error, %ConnectRPC.Error{}}`
+- `{:error, %ConnectRPC.Error{}, metadata}`
+
+Handlers may also `raise ConnectRPC.Error`.
 
 ## Error Handling
 
 Return or raise `ConnectRPC.Error` to send Connect error responses:
 
 ```elixir
-def say(request, _conn) do
+def say(_conn, request) do
   case find_user(request.name) do
     nil ->
       {:error, ConnectRPC.Error.new(:not_found, "user not found")}
@@ -133,20 +103,28 @@ def say(request, _conn) do
 end
 ```
 
-Unexpected exceptions are caught and returned as `internal` errors with a sanitized message. Full details are logged and emitted via telemetry.
+Unexpected exceptions are caught and returned as `internal` errors with a sanitized message. Details are logged and emitted via telemetry.
 
-Enable `debug_exceptions: true` for development to include exception messages in the response:
+For development, include exception messages in responses by enabling `debug_exceptions`:
 
 ```elixir
-forward "/connectrpc.greet.v1.GreeterService",
-  ConnectRPC,
-  handler: MyApp.GreeterHandler,
-  debug_exceptions: true
+defmodule MyApp.DebugGreeterHandler do
+  use ConnectRPC.Handler, debug_exceptions: true
+
+  def say(_conn, request), do: {:ok, %SayResponse{greeting: request.name}}
+end
 ```
 
-## Custom Codecs
+## Router DSL Options
 
-Built-in codecs: `ConnectRPC.Codec.JSON` (`application/json`) and `ConnectRPC.Codec.Proto` (`application/proto`).
+`service/4` accepts options for request decoding and codec negotiation.
+
+### Custom codecs
+
+Built-in codecs:
+
+- `ConnectRPC.Codec.JSON` (`application/json`)
+- `ConnectRPC.Codec.Proto` (`application/proto`)
 
 Implement `ConnectRPC.Codec` for custom serialization:
 
@@ -165,132 +143,126 @@ defmodule MyApp.CustomCodec do
 end
 ```
 
-Register via `:codecs`. This **replaces** the default codecs entirely, so include the built-ins if you still need them:
+Register codecs on a `service` block. This list replaces the defaults:
 
 ```elixir
-forward "/connectrpc.greet.v1.GreeterService",
-  ConnectRPC,
-  handler: MyApp.GreeterHandler,
-  codecs: [ConnectRPC.Codec.Proto, ConnectRPC.Codec.JSON, MyApp.CustomCodec]
+service "/connectrpc.greet.v1.GreeterService", MyApp.GreeterHandler,
+  codecs: [ConnectRPC.Codec.Proto, ConnectRPC.Codec.JSON, MyApp.CustomCodec] do
+  rpc "/Say", :say,
+    request: SayRequest,
+    response: SayResponse
+end
 ```
 
-## Body Size Limits
+### Body size/time limits
 
-Configure via `:read_body_opts`, passed to `Plug.Conn.read_body/2`:
+Configure `Plug.Conn.read_body/2` options per service:
 
 ```elixir
-forward "/connectrpc.greet.v1.GreeterService",
-  ConnectRPC,
-  handler: MyApp.GreeterHandler,
-  read_body_opts: [length: 1_000_000]
+service "/connectrpc.greet.v1.GreeterService", MyApp.GreeterHandler,
+  read_body_opts: [length: 1_000_000, read_timeout: 15_000] do
+  rpc "/Say", :say,
+    request: SayRequest,
+    response: SayResponse
+end
 ```
 
-## Response Metadata (Experimental)
+## Response Metadata
 
-Handlers may return response headers and trailers via a third element:
+Handlers may return response headers and trailers via the third tuple element:
 
 ```elixir
-def say(request, _conn) do
+def say(_conn, request) do
   metadata = %{
     response_headers: [{"x-request-id", "abc123"}],
     response_trailers: [{"x-checksum", "deadbeef"}]
   }
 
-  {:ok, %SayResponse{greeting: "Hello!"}, metadata}
+  {:ok, %SayResponse{greeting: "Hello, #{request.name}!"}, metadata}
 end
 ```
 
-Trailers are sent as `trailer-<name>` response headers for unary RPCs.
+Trailers are surfaced as `trailer-<name>` response headers for unary RPCs.
+
+## Pipe Ordering
+
+`service` injects ConnectRPC's internal pipeline plugs (codec negotiation, validation, decoding).
+
+If you add `pipe_through` inside a `service` block, those plugs run after decoding and can access `conn.assigns.connect_rpc_request`.
 
 ## Plug.Parsers Compatibility
 
-ConnectRPC reads the request body directly. If `Plug.Parsers` runs upstream and consumes the body, a clear error is raised.
+ConnectRPC reads the request body directly. If an upstream parser consumes the body first, ConnectRPC raises:
 
-**Option 1 — Exclude ConnectRPC content types** using the `:pass` option:
+`Request body already consumed by an upstream parser. Exclude ConnectRPC paths from Plug.Parsers using the :pass option.`
+
+If your endpoint parses JSON globally, exclude Connect content-types:
 
 ```elixir
 plug Plug.Parsers,
-  parsers: [:json],
+  parsers: [:urlencoded, :multipart, :json],
   pass: ["application/proto", "application/json"],
   json_decoder: Jason
 ```
 
-Note: passing `"application/json"` means `Plug.Parsers` won't parse JSON for *any* route. This works if ConnectRPC is your only JSON consumer.
-
-**Option 2 (recommended) — Separate pipelines** so ConnectRPC routes bypass `Plug.Parsers` entirely:
-
-```elixir
-# In your Phoenix router
-pipeline :api do
-  plug Plug.Parsers, parsers: [:json], json_decoder: Jason
-end
-
-pipeline :rpc do
-  # No Plug.Parsers — ConnectRPC handles body reading
-end
-
-scope "/" do
-  pipe_through :rpc
-  forward "/connectrpc.greet.v1.GreeterService", ConnectRPC, handler: MyApp.GreeterHandler
-end
-
-scope "/api" do
-  pipe_through :api
-  # REST routes here
-end
-```
+Note: passing `"application/json"` skips endpoint-level JSON parsing for all routes.
 
 ## Telemetry
 
-Three events following Phoenix conventions:
+Events:
 
-| Event                                  | Measurements                | When                      |
-| -------------------------------------- | --------------------------- | ------------------------- |
-| `[:connect_rpc, :handler, :start]`     | `%{system_time: integer()}` | Before handler invocation |
-| `[:connect_rpc, :handler, :stop]`      | `%{duration: integer()}`    | After successful handling |
-| `[:connect_rpc, :handler, :exception]` | `%{duration: integer()}`    | After handler exception   |
+- `[:connect_rpc, :handler, :start]` with `%{system_time: integer()}`
+- `[:connect_rpc, :handler, :stop]` with `%{duration: integer()}`
+- `[:connect_rpc, :handler, :exception]` with `%{duration: integer()}`
 
-All events include metadata: `%{service: String.t(), method: String.t(), codec: String.t(), path: String.t()}`.
+Metadata includes `service`, `method`, `codec`, and `path`.
+
+## Migrating from v0.1.x
+
+1. Remove service modules (`__connect_rpc_service__/0` is no longer used).
+2. Update handlers from `(request, conn)` to `(conn, request)`.
+3. Replace `forward ... ConnectRPC` with `use ConnectRPC.Router` and `service`/`rpc` routes.
+4. Move route-specific options (`codecs`, `read_body_opts`) to `service` options.
 
 ## Scope
 
-**Supported in v0.1.0:**
+Supported in v0.2.0:
 
-- Connect protocol (unary RPCs)
-- `application/proto` and `application/json` content types
+- Connect protocol unary RPCs
+- `application/proto` and `application/json`
 - Connect-style JSON error responses
-- Custom codec registration
-- Compile-time handler validation
+- Custom codec registration per service
+- Compile-time route validation
 - Telemetry events
 
-**Out of scope for v0.1.0:**
+Out of scope in v0.2.0:
 
 - Streaming (server/client/bidi)
 - GET for idempotent RPCs
 - Connect-level compression
 - gRPC / gRPC-Web protocols
 
-Streaming RPCs are compile-time recognized but not dispatched. Requests to streaming methods return `unimplemented` (HTTP 501).
+## Limitations
+
+- `Connect-Timeout-Ms` is accepted by the server today but not enforced as a handler deadline.
+- GET requests for idempotent RPCs are not supported; unary calls must use POST.
+- Request/response compression is not supported (`Content-Encoding` values other than `identity` are rejected), so clients must send uncompressed requests.
 
 ## HTTP Status 499
 
-The Connect protocol uses HTTP status 499 for `canceled` errors. Plug doesn't register this status by default. To get a named reason phrase in logs, add to your `config.exs`:
+Connect uses HTTP status 499 for `canceled`. Plug does not register this status by default. Optional config:
 
 ```elixir
 config :plug, :statuses, %{499 => "Client Closed Request"}
 ```
 
-This is optional — the library sends 499 as a raw integer regardless.
-
 ## Conformance
 
-Run ConnectRPC server conformance tests:
+Run server conformance tests:
 
 ```bash
 ./conformance/bin/run
 ```
-
-This downloads `connectconformance` (cached in `conformance/.cache/`), compiles with `MIX_ENV=test`, and runs in `--mode server`.
 
 ## Example
 
