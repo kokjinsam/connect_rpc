@@ -1,7 +1,7 @@
 defmodule ConnectRPC.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.2.0"
   @source_url "https://github.com/kokjinsam/connect_rpc"
 
   def project do
@@ -40,6 +40,7 @@ defmodule ConnectRPC.MixProject do
   defp deps do
     [
       {:jason, "~> 1.4"},
+      {:phoenix, "~> 1.7"},
       {:plug, "~> 1.14"},
       {:protobuf, "~> 0.15"},
       {:telemetry, "~> 1.0"},
