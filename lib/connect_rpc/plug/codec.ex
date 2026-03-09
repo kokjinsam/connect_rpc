@@ -35,7 +35,7 @@ defmodule ConnectRPC.Plug.Codec do
   end
 
   defp validate_codec!(codec) when is_atom(codec) do
-    case Code.ensure_loaded(codec) do
+    case Code.ensure_compiled(codec) do
       {:module, _module} ->
         validate_codec_callbacks!(codec)
         validate_codec_media_type!(codec)
