@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.0
+
+- Refactored request handling into focused modules: `ConnectRPC.Plug.Codec`, `ConnectRPC.Plug.Decoder`, and `ConnectRPC.Plug.Validator`
+- Added `ConnectRPC.Router` and updated handler wiring for clearer route/service composition
+- Improved metadata handling in protocol parsing and request decoding
+- Expanded test coverage with dedicated plug and router tests, plus updated handler/protocol integration tests
+- Added and restructured the `examples/greeter` Phoenix app to demonstrate ConnectRPC integration end-to-end
+- Simplified conformance runtime wiring by removing unused conformance Plug/Service modules and routing through the new structure
+- Updated README quick-start and service implementation docs for the v0.2.0 API shape
+- Fixed codec validation to use `Code.ensure_compiled/1` in `validate_codec!/1`
+
 ## 0.1.0
 
 - Initial ConnectRPC Plug implementation for unary RPCs
