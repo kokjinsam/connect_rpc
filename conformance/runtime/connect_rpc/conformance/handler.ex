@@ -1,16 +1,16 @@
 defmodule ConnectRPC.Conformance.Handler do
   @moduledoc false
 
-  use ConnectRPC.Handler, service: ConnectRPC.Conformance.Service
+  use ConnectRPC.Handler
 
   alias Connectrpc.Conformance.V1
   alias Connectrpc.Conformance.V1.ConformancePayload
   alias Google.Protobuf.Any
 
-  @spec unary(V1.UnaryRequest.t(), Plug.Conn.t()) ::
+  @spec unary(Plug.Conn.t(), V1.UnaryRequest.t()) ::
           {:ok, V1.UnaryResponse.t(), keyword()}
           | {:error, ConnectRPC.Error.t(), keyword()}
-  def unary(%V1.UnaryRequest{} = request, conn) do
+  def unary(conn, %V1.UnaryRequest{} = request) do
     request_info = build_request_info(conn, [pack_any(request)])
 
     response_definition = request.response_definition

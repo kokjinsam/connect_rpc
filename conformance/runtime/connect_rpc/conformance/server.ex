@@ -14,7 +14,7 @@ defmodule ConnectRPC.Conformance.Server do
     with :ok <- validate_protocol(request.protocol),
          :ok <- validate_http_version(request.http_version),
          :ok <- validate_tls(request.use_tls) do
-      plug = {ConnectRPC.Conformance.Plug, []}
+      plug = {ConnectRPC.Conformance.Router, []}
 
       case start_bandit(plug) do
         {:ok, server_pid} ->
