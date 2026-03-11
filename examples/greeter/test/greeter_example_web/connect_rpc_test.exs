@@ -11,7 +11,7 @@ defmodule GreeterExampleWeb.ConnectRPCTest do
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
 
-    conn = GreeterExampleWeb.Router.call(conn, GreeterExampleWeb.Router.init([]))
+    conn = GreeterExampleWeb.Endpoint.call(conn, GreeterExampleWeb.Endpoint.init([]))
 
     assert conn.status == 200
     assert %{"greeting" => "Hello, World!"} = Jason.decode!(conn.resp_body)
