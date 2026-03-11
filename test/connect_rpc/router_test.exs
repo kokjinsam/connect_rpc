@@ -50,6 +50,19 @@ defmodule ConnectRPC.RouterTest do
     end
   end
 
+  defmodule PipelineEndpoint do
+    @moduledoc false
+    use Plug.Builder
+
+    plug(Plug.Parsers,
+      parsers: [:urlencoded, :multipart, ConnectRPC.Parser, :json],
+      pass: ["*/*"],
+      json_decoder: Jason
+    )
+
+    plug(ConnectRPC.RouterTest.PipelineRouter)
+  end
+
   test "sets rpc metadata in conn.private" do
     conn =
       :post
@@ -57,7 +70,7 @@ defmodule ConnectRPC.RouterTest do
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
 
-    conn = ConnectRPC.TestRouter.call(conn, ConnectRPC.TestRouter.init([]))
+    conn = ConnectRPC.TestEndpoint.call(conn, ConnectRPC.TestEndpoint.init([]))
 
     assert conn.private.connect_rpc_rpc.request == EchoRequest
     assert conn.private.connect_rpc_rpc.response == EchoResponse
@@ -72,7 +85,7 @@ defmodule ConnectRPC.RouterTest do
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
 
-    conn = PipelineRouter.call(conn, PipelineRouter.init([]))
+    conn = PipelineEndpoint.call(conn, PipelineEndpoint.init([]))
 
     assert conn.status == 200
     assert get_resp_header(conn, "x-after-decode") == ["true"]
@@ -91,8 +104,8 @@ defmodule ConnectRPC.RouterTest do
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
 
-    conn1 = ConnectRPC.TestRouter.call(conn1, ConnectRPC.TestRouter.init([]))
-    conn2 = ConnectRPC.TestRouter.call(conn2, ConnectRPC.TestRouter.init([]))
+    conn1 = ConnectRPC.TestEndpoint.call(conn1, ConnectRPC.TestEndpoint.init([]))
+    conn2 = ConnectRPC.TestEndpoint.call(conn2, ConnectRPC.TestEndpoint.init([]))
 
     assert conn1.status == 200
     assert conn2.status == 400

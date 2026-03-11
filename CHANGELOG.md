@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0
+
+- Breaking: moved request parsing/validation into `ConnectRPC.Parser` (a `Plug.Parsers` parser) and replaced the per-service 4-plug router pipeline with `ConnectRPC.Plug.Handler`
+- Breaking: removed `service/4` options `codecs:`, `read_body_opts:`, and `read_body_fun:`
+- Added `ConnectRPC.Parser` for Connect protocol header validation, codec negotiation, and request body parsing
+- Added `ConnectRPC.Plug.Handler` for request struct casting and context initialization before handler dispatch
+- Updated tests and example endpoint wiring to route requests through `Plug.Parsers` with `ConnectRPC.Parser`
+
 ## 0.3.0
 
 - Breaking: changed handler callback signature from `(conn, request)` to `(request, context)`

@@ -2,7 +2,7 @@
 
 ConnectRPC-compatible server for Elixir, implemented as a Phoenix router DSL.
 
-`connect_rpc` v0.3.0 targets [Phoenix.Router](https://hexdocs.pm/phoenix/Phoenix.Router.html) and supports unary RPCs over the Connect protocol.
+`connect_rpc` v0.4.0 targets [Phoenix.Router](https://hexdocs.pm/phoenix/Phoenix.Router.html) and supports unary RPCs over the Connect protocol.
 
 ## Installation
 
@@ -11,7 +11,7 @@ Add `connect_rpc` to your dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:connect_rpc, "~> 0.3.0"}
+    {:connect_rpc, "~> 0.4.0"}
   ]
 end
 ```
@@ -50,7 +50,18 @@ defmodule MyApp.GreeterHandler do
 end
 ```
 
-### 3. Add ConnectRPC routes in your Phoenix router
+### 3. Configure `Plug.Parsers` in your endpoint
+
+`ConnectRPC.Parser` must run before `:json` so ConnectRPC requests are claimed first while regular JSON requests continue through the normal parser chain.
+
+```elixir
+plug Plug.Parsers,
+  parsers: [:urlencoded, :multipart, ConnectRPC.Parser, :json],
+  pass: ["*/*"],
+  json_decoder: Phoenix.json_library()
+```
+
+### 4. Add ConnectRPC routes in your Phoenix router
 
 ```elixir
 defmodule MyAppWeb.Router do
@@ -65,7 +76,7 @@ defmodule MyAppWeb.Router do
 end
 ```
 
-### 4. Make a request
+### 5. Make a request
 
 ```bash
 curl -X POST http://localhost:4000/connectrpc.greet.v1.GreeterService/Say \
@@ -122,56 +133,33 @@ defmodule MyApp.DebugGreeterHandler do
 end
 ```
 
-## Router DSL Options
+## Parser Configuration
 
-`service/4` accepts options for request decoding and codec negotiation.
-
-### Custom codecs
+`service/4` no longer accepts ConnectRPC-specific options in v0.4.0. Configure codecs and body-read limits at the endpoint parser level.
 
 Built-in codecs:
 
 - `ConnectRPC.Codec.JSON` (`application/json`)
 - `ConnectRPC.Codec.Proto` (`application/proto`)
 
-Implement `ConnectRPC.Codec` for custom serialization:
+To override codec negotiation order or allowed codecs:
 
 ```elixir
-defmodule MyApp.CustomCodec do
-  @behaviour ConnectRPC.Codec
-
-  @impl true
-  def media_type, do: "application/x-custom"
-
-  @impl true
-  def decode(payload, module), do: {:ok, deserialize(payload, module)}
-
-  @impl true
-  def encode(struct), do: {:ok, serialize(struct)}
-end
+plug Plug.Parsers,
+  parsers: [:urlencoded, :multipart, {ConnectRPC.Parser, codecs: [ConnectRPC.Codec.Proto, ConnectRPC.Codec.JSON]}, :json],
+  pass: ["*/*"],
+  json_decoder: Phoenix.json_library()
 ```
 
-Register codecs on a `service` block. This list replaces the defaults:
+To configure request body limits/timeouts:
 
 ```elixir
-service "/connectrpc.greet.v1.GreeterService", MyApp.GreeterHandler,
-  codecs: [ConnectRPC.Codec.Proto, ConnectRPC.Codec.JSON, MyApp.CustomCodec] do
-  rpc "/Say", :say,
-    request: SayRequest,
-    response: SayResponse
-end
-```
-
-### Body size/time limits
-
-Configure `Plug.Conn.read_body/2` options per service:
-
-```elixir
-service "/connectrpc.greet.v1.GreeterService", MyApp.GreeterHandler,
-  read_body_opts: [length: 1_000_000, read_timeout: 15_000] do
-  rpc "/Say", :say,
-    request: SayRequest,
-    response: SayResponse
-end
+plug Plug.Parsers,
+  parsers: [:urlencoded, :multipart, ConnectRPC.Parser, :json],
+  pass: ["*/*"],
+  length: 1_000_000,
+  read_timeout: 15_000,
+  json_decoder: Phoenix.json_library()
 ```
 
 ## Response Metadata
@@ -193,26 +181,13 @@ Trailers are surfaced as `trailer-<name>` response headers for unary RPCs.
 
 ## Pipe Ordering
 
-`service` injects ConnectRPC's internal pipeline plugs (context initialization, codec negotiation, validation, decoding).
+`service` injects a single internal plug (`ConnectRPC.Plug.Handler`) for context initialization and request struct casting.
 
 If you add `pipe_through` inside a `service` block, those plugs run after decoding and can access `conn.assigns.connect_rpc_request`.
 
 ## Plug.Parsers Compatibility
 
-ConnectRPC reads the request body directly. If an upstream parser consumes the body first, ConnectRPC raises:
-
-`Request body already consumed by an upstream parser. Exclude ConnectRPC paths from Plug.Parsers using the :pass option.`
-
-If your endpoint parses JSON globally, exclude Connect content-types:
-
-```elixir
-plug Plug.Parsers,
-  parsers: [:urlencoded, :multipart, :json],
-  pass: ["application/proto", "application/json"],
-  json_decoder: Jason
-```
-
-Note: passing `"application/json"` skips endpoint-level JSON parsing for all routes.
+ConnectRPC now integrates directly with endpoint parsing through `ConnectRPC.Parser`. Add it before `:json` in `Plug.Parsers` so ConnectRPC requests are parsed first while non-Connect JSON requests continue to regular JSON parsing.
 
 ## Telemetry
 
@@ -230,18 +205,24 @@ Metadata includes `service`, `method`, `codec`, and `path`.
 2. Move handler inputs derived from `conn` into context via plugs and `ConnectRPC.Context.put/3`.
 3. Return tuples from handlers instead of sending responses directly with `Plug.Conn`.
 
+## Migrating from v0.3.x
+
+1. Add `ConnectRPC.Parser` to endpoint `Plug.Parsers` before `:json`.
+2. Remove `service/4` ConnectRPC options: `codecs:`, `read_body_opts:`, and `read_body_fun:`.
+3. Move codec/body parser configuration to endpoint `Plug.Parsers`.
+
 ## Scope
 
-Supported in v0.3.0:
+Supported in v0.4.0:
 
 - Connect protocol unary RPCs
 - `application/proto` and `application/json`
 - Connect-style JSON error responses
-- Custom codec registration per service
+- Endpoint-level codec negotiation via `ConnectRPC.Parser`
 - Compile-time route validation
 - Telemetry events
 
-Out of scope in v0.3.0:
+Out of scope in v0.4.0:
 
 - Streaming (server/client/bidi)
 - GET for idempotent RPCs

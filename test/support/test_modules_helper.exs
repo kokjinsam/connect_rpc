@@ -226,28 +226,6 @@ defmodule ConnectRPC.TestPlugs.ContextAssign do
   end
 end
 
-defmodule ConnectRPC.TestCodecs.EchoText do
-  @moduledoc false
-
-  alias ConnectRPC.TestProto.EchoRequest
-  alias ConnectRPC.TestProto.EchoResponse
-
-  def id, do: :echo_text
-  def media_type, do: "application/x-echo-text"
-
-  def decode(payload, EchoRequest) when is_binary(payload) do
-    {:ok, %EchoRequest{message: payload}}
-  end
-
-  def decode(_payload, _module), do: {:error, :unsupported_request_type}
-
-  def encode(%EchoResponse{message: message}) when is_binary(message) do
-    {:ok, message}
-  end
-
-  def encode(_other), do: {:error, :unsupported_response_type}
-end
-
 defmodule ConnectRPC.TestRouter do
   @moduledoc false
   use Phoenix.Router
@@ -382,18 +360,18 @@ defmodule ConnectRPC.TestRouter do
       response: EchoResponse
     )
   end
+end
 
-  service "/connectrpc.test.v1.CustomCodecService", EchoHandler, codecs: [ConnectRPC.TestCodecs.EchoText] do
-    rpc("/Echo", :echo,
-      request: EchoRequest,
-      response: EchoResponse
-    )
-  end
+defmodule ConnectRPC.TestEndpoint do
+  @moduledoc false
 
-  service "/connectrpc.test.v1.JsonOnlyService", EchoHandler, codecs: [ConnectRPC.Codec.JSON] do
-    rpc("/Echo", :echo,
-      request: EchoRequest,
-      response: EchoResponse
-    )
-  end
+  use Plug.Builder
+
+  plug(Plug.Parsers,
+    parsers: [:urlencoded, :multipart, ConnectRPC.Parser, :json],
+    pass: ["*/*"],
+    json_decoder: Jason
+  )
+
+  plug(ConnectRPC.TestRouter)
 end

@@ -22,7 +22,7 @@ defmodule ConnectRPC.HandlerTest do
       |> put_req_header("content-type", "application/json")
       |> put_req_header("connect-protocol-version", "1")
 
-    conn = ConnectRPC.TestRouter.call(conn, ConnectRPC.TestRouter.init([]))
+    conn = ConnectRPC.TestEndpoint.call(conn, ConnectRPC.TestEndpoint.init([]))
 
     assert conn.status == 200
     assert %{"message" => "hello"} = Jason.decode!(conn.resp_body)

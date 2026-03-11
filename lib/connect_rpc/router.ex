@@ -35,27 +35,12 @@ defmodule ConnectRPC.Router do
     service_name = strip_leading_slash(path)
     pipeline_name = generate_pipeline_name(caller.module, path, handler_module, caller.line)
 
-    codecs = Keyword.get(expanded_opts, :codecs)
-    read_body_opts = Keyword.get(expanded_opts, :read_body_opts)
-    read_body_fun = Keyword.get(expanded_opts, :read_body_fun)
-
-    codec_opts = if is_nil(codecs), do: [], else: [codecs: codecs]
-
-    decoder_opts =
-      []
-      |> maybe_put_opt(:read_body_opts, read_body_opts)
-      |> maybe_put_opt(:read_body_fun, read_body_fun)
-
     Module.put_attribute(caller.module, :connect_rpc_current_handler, handler_module)
     Module.put_attribute(caller.module, :connect_rpc_current_service_name, service_name)
 
     quote do
       pipeline unquote(pipeline_name) do
-        plug(ConnectRPC.Plug.Context)
-        # Keep method validation in Validator while preserving content-type precedence for POST.
-        plug(ConnectRPC.Plug.Codec, unquote(codec_opts))
-        plug(ConnectRPC.Plug.Validator)
-        plug(ConnectRPC.Plug.Decoder, unquote(decoder_opts))
+        plug(ConnectRPC.Plug.Handler)
       end
 
       scope unquote(path) do
@@ -170,9 +155,6 @@ defmodule ConnectRPC.Router do
       method_name -> method_name
     end
   end
-
-  defp maybe_put_opt(opts, _key, nil), do: opts
-  defp maybe_put_opt(opts, key, value), do: Keyword.put(opts, key, value)
 
   defp ensure_module_compiled!(module, role, caller) do
     case Code.ensure_compiled(module) do

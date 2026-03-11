@@ -6,7 +6,6 @@ defmodule ConnectRPCTest do
 
   alias ConnectRPC.TestProto.EchoRequest
   alias ConnectRPC.TestProto.EchoResponse
-  alias Plug.Conn.WrapperError
 
   test "handles unary JSON request/response" do
     conn =
@@ -80,31 +79,6 @@ defmodule ConnectRPCTest do
     assert %{"code" => "invalid_argument"} = Jason.decode!(conn.resp_body)
   end
 
-  test "supports custom codec registration through service opts" do
-    conn =
-      call_router(:post, "/connectrpc.test.v1.CustomCodecService/Echo", "hello", [
-        {"content-type", "application/x-echo-text"},
-        {"connect-protocol-version", "1"}
-      ])
-
-    assert conn.status == 200
-    assert get_resp_header(conn, "content-type") == ["application/x-echo-text"]
-    assert conn.resp_body == "hello"
-  end
-
-  test "custom codecs list fully replaces default codecs" do
-    body = EchoRequest.encode(%EchoRequest{message: "hello"})
-
-    conn =
-      call_router(:post, "/connectrpc.test.v1.JsonOnlyService/Echo", body, [
-        {"content-type", "application/proto"},
-        {"connect-protocol-version", "1"}
-      ])
-
-    assert conn.status == 415
-    assert %{"code" => "unknown"} = Jason.decode!(conn.resp_body)
-  end
-
   test "returns unimplemented when compression is requested" do
     conn =
       call_router(:post, "/connectrpc.test.v1.EchoService/Echo", ~s({"message":"hello"}), [
@@ -147,21 +121,6 @@ defmodule ConnectRPCTest do
 
     assert conn.status == 400
     refute_received {:handler_invoked, _}
-  end
-
-  test "raises when request body was consumed upstream" do
-    conn =
-      :post
-      |> conn("/connectrpc.test.v1.EchoService/Echo", ~s({"message":"hello"}))
-      |> put_req_header("content-type", "application/json")
-      |> put_req_header("connect-protocol-version", "1")
-      |> Map.put(:body_params, %{"message" => "hello"})
-
-    assert_raise WrapperError,
-                 ~r/Request body already consumed by an upstream parser/,
-                 fn ->
-                   ConnectRPC.TestRouter.call(conn, ConnectRPC.TestRouter.init([]))
-                 end
   end
 
   test "returns handled ConnectRPC error tuple from handler" do
@@ -377,7 +336,7 @@ defmodule ConnectRPCTest do
     conn = Enum.reduce(headers, conn, fn {k, v}, c -> put_req_header(c, k, v) end)
 
     try do
-      ConnectRPC.TestRouter.call(conn, ConnectRPC.TestRouter.init([]))
+      ConnectRPC.TestEndpoint.call(conn, ConnectRPC.TestEndpoint.init([]))
     rescue
       Phoenix.Router.NoRouteError ->
         send_resp(conn, 404, "")

@@ -11,8 +11,9 @@ defmodule GreeterExampleWeb.Endpoint do
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
   plug Plug.Parsers,
-    parsers: [:urlencoded, :multipart],
-    pass: ["*/*"]
+    parsers: [:urlencoded, :multipart, ConnectRPC.Parser, :json],
+    pass: ["*/*"],
+    json_decoder: Phoenix.json_library()
 
   plug Plug.MethodOverride
   plug Plug.Head
