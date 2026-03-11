@@ -2,7 +2,7 @@
 
 ConnectRPC-compatible server for Elixir, implemented as a Phoenix router DSL.
 
-`connect_rpc` v0.4.0 targets [Phoenix.Router](https://hexdocs.pm/phoenix/Phoenix.Router.html) and supports unary RPCs over the Connect protocol.
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/kokjinsam/connect_rpc)
 
 ## Installation
 
