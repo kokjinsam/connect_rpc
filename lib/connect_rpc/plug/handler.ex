@@ -103,7 +103,7 @@ defmodule ConnectRPC.Plug.Handler do
 
     try do
       case Protobuf.JSON.from_decoded(body_params, request_module) do
-        {:ok, %_{} = request_struct} -> {:ok, request_struct}
+        {:ok, request_struct} when is_struct(request_struct) -> {:ok, request_struct}
         {:ok, _other} -> {:error, Error.new(:invalid_argument, "Invalid request body")}
         {:error, _reason} -> {:error, Error.new(:invalid_argument, "Invalid request body")}
       end
