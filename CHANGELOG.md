@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0
+
+- Breaking: changed handler callback signature from `(conn, request)` to `(request, context)`
+- Added `ConnectRPC.Context` plus `ConnectRPC.Context.put/3` and `ConnectRPC.Context.get/3` for per-request handler context
+- Added automatic context initialization via `ConnectRPC.Plug.Context` in `service` pipelines
+- Removed handler double-send guard logic by eliminating direct `Plug.Conn` access in handler callbacks
+- Added context propagation tests and updated conformance handler wiring to source request info from context
+
 ## 0.2.0
 
 - Refactored request handling into focused modules: `ConnectRPC.Plug.Codec`, `ConnectRPC.Plug.Decoder`, and `ConnectRPC.Plug.Validator`

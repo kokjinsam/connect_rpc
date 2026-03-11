@@ -2,7 +2,7 @@
 
 ConnectRPC-compatible server for Elixir, implemented as a Phoenix router DSL.
 
-`connect_rpc` v0.2.0 targets [Phoenix.Router](https://hexdocs.pm/phoenix/Phoenix.Router.html) and supports unary RPCs over the Connect protocol.
+`connect_rpc` v0.3.0 targets [Phoenix.Router](https://hexdocs.pm/phoenix/Phoenix.Router.html) and supports unary RPCs over the Connect protocol.
 
 ## Installation
 
@@ -11,7 +11,7 @@ Add `connect_rpc` to your dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:connect_rpc, "~> 0.2.0"}
+    {:connect_rpc, "~> 0.3.0"}
   ]
 end
 ```
@@ -224,16 +224,15 @@ Events:
 
 Metadata includes `service`, `method`, `codec`, and `path`.
 
-## Migrating from v0.1.x
+## Migrating from v0.2.x
 
-1. Remove service modules (`__connect_rpc_service__/0` is no longer used).
-2. Update handlers to `(request, context)`.
-3. Replace `forward ... ConnectRPC` with `use ConnectRPC.Router` and `service`/`rpc` routes.
-4. Move route-specific options (`codecs`, `read_body_opts`) to `service` options.
+1. Update handler callbacks from `(conn, request)` to `(request, context)`.
+2. Move handler inputs derived from `conn` into context via plugs and `ConnectRPC.Context.put/3`.
+3. Return tuples from handlers instead of sending responses directly with `Plug.Conn`.
 
 ## Scope
 
-Supported in v0.2.0:
+Supported in v0.3.0:
 
 - Connect protocol unary RPCs
 - `application/proto` and `application/json`
@@ -242,7 +241,7 @@ Supported in v0.2.0:
 - Compile-time route validation
 - Telemetry events
 
-Out of scope in v0.2.0:
+Out of scope in v0.3.0:
 
 - Streaming (server/client/bidi)
 - GET for idempotent RPCs
