@@ -2,7 +2,7 @@ defmodule ConnectRPC.TestHandlers.EchoHandler do
   @moduledoc false
   use ConnectRPC.Handler
 
-  def echo(_conn, %ConnectRPC.TestProto.EchoRequest{message: message}) do
+  def echo(%ConnectRPC.TestProto.EchoRequest{message: message}, _context) do
     {:ok, %ConnectRPC.TestProto.EchoResponse{message: message}}
   end
 end
@@ -11,7 +11,7 @@ defmodule ConnectRPC.TestHandlers.FailHandler do
   @moduledoc false
   use ConnectRPC.Handler
 
-  def fail(_conn, _request) do
+  def fail(_request, _context) do
     {:error, ConnectRPC.Error.new(:invalid_argument, "name is required")}
   end
 end
@@ -20,7 +20,7 @@ defmodule ConnectRPC.TestHandlers.RaiseConnectErrorHandler do
   @moduledoc false
   use ConnectRPC.Handler
 
-  def fail(_conn, _request) do
+  def fail(_request, _context) do
     raise ConnectRPC.Error, code: :not_found, message: "user not found"
   end
 end
@@ -29,7 +29,7 @@ defmodule ConnectRPC.TestHandlers.CrashHandler do
   @moduledoc false
   use ConnectRPC.Handler
 
-  def boom(_conn, _request) do
+  def boom(_request, _context) do
     raise "boom"
   end
 end
@@ -38,7 +38,7 @@ defmodule ConnectRPC.TestHandlers.DebugCrashHandler do
   @moduledoc false
   use ConnectRPC.Handler, debug_exceptions: true
 
-  def boom(_conn, _request) do
+  def boom(_request, _context) do
     raise "boom"
   end
 end
@@ -47,7 +47,7 @@ defmodule ConnectRPC.TestHandlers.MismatchHandler do
   @moduledoc false
   use ConnectRPC.Handler
 
-  def mismatch(_conn, _request) do
+  def mismatch(_request, _context) do
     {:ok, %{foo: "bar"}}
   end
 end
@@ -56,19 +56,22 @@ defmodule ConnectRPC.TestHandlers.NotifyHandler do
   @moduledoc false
   use ConnectRPC.Handler
 
-  def echo(_conn, request) do
+  def echo(request, _context) do
     send(self(), {:handler_invoked, request.message})
     {:ok, %ConnectRPC.TestProto.EchoResponse{message: request.message}}
   end
 end
 
-defmodule ConnectRPC.TestHandlers.DirectSendHandler do
+defmodule ConnectRPC.TestHandlers.ContextHandler do
   @moduledoc false
   use ConnectRPC.Handler
 
-  def direct_send(conn, _request) do
-    Plug.Conn.send_resp(conn, 200, "sent directly")
-    {:ok, %ConnectRPC.TestProto.EchoResponse{message: "ignored"}}
+  alias ConnectRPC.TestProto.EchoRequest
+  alias ConnectRPC.TestProto.EchoResponse
+
+  def echo(%EchoRequest{message: message}, %ConnectRPC.Context{} = context) do
+    send(self(), {:handler_context, context})
+    {:ok, %EchoResponse{message: message}}
   end
 end
 
@@ -79,7 +82,7 @@ defmodule ConnectRPC.TestHandlers.MetadataSuccessHandler do
   alias ConnectRPC.TestProto.EchoRequest
   alias ConnectRPC.TestProto.EchoResponse
 
-  def echo(_conn, %EchoRequest{message: message}) do
+  def echo(%EchoRequest{message: message}, _context) do
     metadata = %{
       response_headers: [
         %{name: "x-meta-map", value: ["one", "two"]},
@@ -98,7 +101,7 @@ defmodule ConnectRPC.TestHandlers.MetadataErrorHandler do
   @moduledoc false
   use ConnectRPC.Handler
 
-  def fail(_conn, _request) do
+  def fail(_request, _context) do
     metadata = [
       response_headers: [%{"name" => "x-error-meta", "value" => ["left", "right"]}],
       response_trailers: [%{"name" => "x-error-trailer", "value" => ["trailer-value"]}]
@@ -115,7 +118,7 @@ defmodule ConnectRPC.TestHandlers.MetadataInvalidHandler do
   alias ConnectRPC.TestProto.EchoRequest
   alias ConnectRPC.TestProto.EchoResponse
 
-  def echo(_conn, %EchoRequest{message: message}) do
+  def echo(%EchoRequest{message: message}, _context) do
     metadata = %{
       response_headers: [
         %{name: "x invalid", value: ["bad"]}
@@ -133,7 +136,7 @@ defmodule ConnectRPC.TestHandlers.MetadataReservedHandler do
   alias ConnectRPC.TestProto.EchoRequest
   alias ConnectRPC.TestProto.EchoResponse
 
-  def echo(_conn, %EchoRequest{message: message}) do
+  def echo(%EchoRequest{message: message}, _context) do
     metadata = %{
       response_headers: [
         %{name: "connect-custom", value: ["reserved"]}
@@ -151,7 +154,7 @@ defmodule ConnectRPC.TestHandlers.MetadataAsciiInvalidHandler do
   alias ConnectRPC.TestProto.EchoRequest
   alias ConnectRPC.TestProto.EchoResponse
 
-  def echo(_conn, %EchoRequest{message: message}) do
+  def echo(%EchoRequest{message: message}, _context) do
     metadata = %{
       response_headers: [
         %{name: "x-meta-ascii", value: ["héllo"]}
@@ -169,7 +172,7 @@ defmodule ConnectRPC.TestHandlers.MetadataBinaryHandler do
   alias ConnectRPC.TestProto.EchoRequest
   alias ConnectRPC.TestProto.EchoResponse
 
-  def echo(_conn, %EchoRequest{message: message}) do
+  def echo(%EchoRequest{message: message}, _context) do
     metadata = %{
       response_headers: [
         %{name: "x-meta-bytes-bin", value: ["AQI="]}
@@ -190,7 +193,7 @@ defmodule ConnectRPC.TestHandlers.MetadataBinaryInvalidHandler do
   alias ConnectRPC.TestProto.EchoRequest
   alias ConnectRPC.TestProto.EchoResponse
 
-  def echo(_conn, %EchoRequest{message: message}) do
+  def echo(%EchoRequest{message: message}, _context) do
     metadata = %{
       response_headers: [
         %{name: "x-meta-bytes-bin", value: ["###not-base64###"]}
@@ -205,8 +208,21 @@ defmodule ConnectRPC.TestHandlers.BadDetailHandler do
   @moduledoc false
   use ConnectRPC.Handler
 
-  def fail(_conn, _request) do
+  def fail(_request, _context) do
     {:error, ConnectRPC.Error.new(:invalid_argument, "bad request", [%{invalid: "detail"}])}
+  end
+end
+
+defmodule ConnectRPC.TestPlugs.ContextAssign do
+  @moduledoc false
+  @behaviour Plug
+
+  @impl Plug
+  def init(opts), do: opts
+
+  @impl Plug
+  def call(conn, _opts) do
+    ConnectRPC.Context.put(conn, :upstream_value, "from-upstream")
   end
 end
 
@@ -237,9 +253,14 @@ defmodule ConnectRPC.TestRouter do
   use Phoenix.Router
   use ConnectRPC.Router
 
+  alias ConnectRPC.TestHandlers.ContextHandler
   alias ConnectRPC.TestHandlers.EchoHandler
   alias ConnectRPC.TestProto.EchoRequest
   alias ConnectRPC.TestProto.EchoResponse
+
+  pipeline :context_assign do
+    plug(ConnectRPC.TestPlugs.ContextAssign)
+  end
 
   service "/connectrpc.test.v1.EchoService", EchoHandler do
     rpc("/Echo", :echo,
@@ -290,8 +311,17 @@ defmodule ConnectRPC.TestRouter do
     )
   end
 
-  service "/connectrpc.test.v1.DirectSendService", ConnectRPC.TestHandlers.DirectSendHandler do
-    rpc("/DirectSend", :direct_send,
+  service "/connectrpc.test.v1.ContextService", ContextHandler do
+    rpc("/Echo", :echo,
+      request: EchoRequest,
+      response: EchoResponse
+    )
+  end
+
+  service "/connectrpc.test.v1.ContextAssignedService", ContextHandler do
+    pipe_through(:context_assign)
+
+    rpc("/Echo", :echo,
       request: EchoRequest,
       response: EchoResponse
     )

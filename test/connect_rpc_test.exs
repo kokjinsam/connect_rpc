@@ -317,16 +317,26 @@ defmodule ConnectRPCTest do
     assert message =~ "Expected ConnectRPC.TestProto.EchoResponse"
   end
 
-  test "raises when handler sends a response directly" do
+  test "handler receives context with empty assigns by default" do
     conn =
-      :post
-      |> conn("/connectrpc.test.v1.DirectSendService/DirectSend", ~s({"message":"hello"}))
-      |> put_req_header("content-type", "application/json")
-      |> put_req_header("connect-protocol-version", "1")
+      call_router(:post, "/connectrpc.test.v1.ContextService/Echo", ~s({"message":"hello"}), [
+        {"content-type", "application/json"},
+        {"connect-protocol-version", "1"}
+      ])
 
-    assert_raise WrapperError, ~r/Handler sent a response directly via Plug.Conn/, fn ->
-      ConnectRPC.TestRouter.call(conn, ConnectRPC.TestRouter.init([]))
-    end
+    assert conn.status == 200
+    assert_received {:handler_context, %ConnectRPC.Context{assigns: %{}}}
+  end
+
+  test "ConnectRPC.Context.put/3 from upstream plug populates handler context" do
+    conn =
+      call_router(:post, "/connectrpc.test.v1.ContextAssignedService/Echo", ~s({"message":"hello"}), [
+        {"content-type", "application/json"},
+        {"connect-protocol-version", "1"}
+      ])
+
+    assert conn.status == 200
+    assert_received {:handler_context, %ConnectRPC.Context{assigns: %{upstream_value: "from-upstream"}}}
   end
 
   test "emits telemetry start and stop events on success" do

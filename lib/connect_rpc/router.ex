@@ -51,6 +51,7 @@ defmodule ConnectRPC.Router do
 
     quote do
       pipeline unquote(pipeline_name) do
+        plug(ConnectRPC.Plug.Context)
         # Keep method validation in Validator while preserving content-type precedence for POST.
         plug(ConnectRPC.Plug.Codec, unquote(codec_opts))
         plug(ConnectRPC.Plug.Validator)

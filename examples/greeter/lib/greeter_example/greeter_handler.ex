@@ -6,7 +6,7 @@ defmodule GreeterExample.GreeterHandler do
   alias GreeterExample.Gen.GreetRequest
   alias GreeterExample.Gen.GreetResponse
 
-  def greet(_conn, %GreetRequest{name: name}) do
+  def greet(%GreetRequest{name: name}, _context) do
     {:ok, %GreetResponse{greeting: "Hello, #{name}!"}}
   end
 end

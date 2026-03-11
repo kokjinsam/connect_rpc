@@ -5,13 +5,13 @@ defmodule ConnectRPC.Handler do
 
   import Plug.Conn
 
+  alias ConnectRPC.Context
   alias ConnectRPC.Error
   alias ConnectRPC.Protocol
   alias ConnectRPC.Telemetry
 
   require Logger
 
-  @double_send_error_message "Handler sent a response directly via Plug.Conn. Use {:ok, response} or {:error, %ConnectRPC.Error{}} return values instead."
   @metadata_name_regex ~r/^[0-9a-z_.-]+$/
   @ascii_metadata_value_regex ~r/^[\x20-\x7E]+$/
 
@@ -20,8 +20,6 @@ defmodule ConnectRPC.Handler do
 
     quote do
       @behaviour Plug
-
-      import Plug.Conn
 
       alias ConnectRPC.Error
 
@@ -43,6 +41,7 @@ defmodule ConnectRPC.Handler do
   def __call__(conn, action, handler_module, debug_exceptions) do
     rpc_meta = conn.private.connect_rpc_rpc
     request_struct = conn.assigns.connect_rpc_request
+    context = conn.private[:connect_rpc_context] || Context.new()
     codec = conn.assigns.connect_rpc_codec
 
     metadata = %{
@@ -55,53 +54,41 @@ defmodule ConnectRPC.Handler do
     started_at = System.monotonic_time()
     Telemetry.emit_handler_start(metadata)
 
-    marker = {:connect_rpc_handler_sent, make_ref()}
-    guarded_conn = attach_send_guard(conn, marker)
-    Process.delete(marker)
+    case run_handler(
+           conn,
+           handler_module,
+           action,
+           request_struct,
+           context,
+           metadata,
+           started_at,
+           debug_exceptions
+         ) do
+      {:ok, result} ->
+        handle_handler_result_with_rescue(
+          conn,
+          result,
+          rpc_meta,
+          codec,
+          metadata,
+          started_at,
+          debug_exceptions
+        )
 
-    try do
-      case run_handler(
-             guarded_conn,
-             handler_module,
-             action,
-             request_struct,
-             metadata,
-             started_at,
-             marker,
-             debug_exceptions
-           ) do
-        {:ok, result} ->
-          ensure_handler_did_not_send_response!(marker)
-
-          handle_handler_result_with_rescue(
-            guarded_conn,
-            result,
-            rpc_meta,
-            codec,
-            metadata,
-            started_at,
-            debug_exceptions
-          )
-
-        {:response, response_conn} ->
-          response_conn
-      end
-    after
-      Process.delete(marker)
+      {:response, response_conn} ->
+        response_conn
     end
   end
 
-  defp run_handler(conn, handler_module, action, request_struct, metadata, started_at, marker, debug_exceptions) do
-    {:ok, apply(handler_module, action, [conn, request_struct])}
+  defp run_handler(conn, handler_module, action, request_struct, context, metadata, started_at, debug_exceptions) do
+    {:ok, apply(handler_module, action, [request_struct, context])}
   rescue
     error in Error ->
-      ensure_handler_did_not_send_response!(marker)
       Telemetry.emit_handler_exception(started_at, metadata, :error, error, __STACKTRACE__)
       log_debug(metadata, started_at, Atom.to_string(error.code))
       {:response, Protocol.send_error(conn, error)}
 
     exception ->
-      ensure_handler_did_not_send_response!(marker)
       Telemetry.emit_handler_exception(started_at, metadata, :error, exception, __STACKTRACE__)
       Logger.error(Exception.format(:error, exception, __STACKTRACE__))
 
@@ -116,7 +103,6 @@ defmodule ConnectRPC.Handler do
       {:response, Protocol.send_error(conn, Error.new(:internal, message), 500)}
   catch
     kind, reason ->
-      ensure_handler_did_not_send_response!(marker)
       stacktrace = __STACKTRACE__
       Telemetry.emit_handler_exception(started_at, metadata, kind, reason, stacktrace)
       Logger.error(Exception.format(kind, reason, stacktrace))
@@ -241,21 +227,6 @@ defmodule ConnectRPC.Handler do
 
   defp typecheck_response(other, expected_module) do
     {:error, Error.new(:internal, "Expected #{inspect(expected_module)}, got #{inspect(other)}")}
-  end
-
-  defp attach_send_guard(conn, marker) do
-    register_before_send(conn, fn conn ->
-      Process.put(marker, true)
-      conn
-    end)
-  end
-
-  defp ensure_handler_did_not_send_response!(marker) do
-    if Process.delete(marker) do
-      raise RuntimeError, @double_send_error_message
-    else
-      :ok
-    end
   end
 
   defp rpc_method_name(conn, rpc_meta, action) do

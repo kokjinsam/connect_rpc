@@ -38,13 +38,13 @@ end
 
 ### 2. Implement a handler
 
-Each RPC method maps to a handler function with the signature `(conn, request)`:
+Each RPC method maps to a handler function with the signature `(request, context)`:
 
 ```elixir
 defmodule MyApp.GreeterHandler do
   use ConnectRPC.Handler
 
-  def say(_conn, %MyApp.Greet.V1.SayRequest{name: name}) do
+  def say(%MyApp.Greet.V1.SayRequest{name: name}, _context) do
     {:ok, %MyApp.Greet.V1.SayResponse{greeting: "Hello, #{name}!"}}
   end
 end
@@ -87,12 +87,19 @@ Handlers must return one of:
 
 Handlers may also `raise ConnectRPC.Error`.
 
+## Request Context
+
+Handlers receive `%ConnectRPC.Context{}` as the second argument.
+
+- Read values in handlers with `ConnectRPC.Context.get(context, :key)`.
+- Populate values from plugs with `ConnectRPC.Context.put(conn, :key, value)`.
+
 ## Error Handling
 
 Return or raise `ConnectRPC.Error` to send Connect error responses:
 
 ```elixir
-def say(_conn, request) do
+def say(request, _context) do
   case find_user(request.name) do
     nil ->
       {:error, ConnectRPC.Error.new(:not_found, "user not found")}
@@ -111,7 +118,7 @@ For development, include exception messages in responses by enabling `debug_exce
 defmodule MyApp.DebugGreeterHandler do
   use ConnectRPC.Handler, debug_exceptions: true
 
-  def say(_conn, request), do: {:ok, %SayResponse{greeting: request.name}}
+  def say(request, _context), do: {:ok, %SayResponse{greeting: request.name}}
 end
 ```
 
@@ -172,7 +179,7 @@ end
 Handlers may return response headers and trailers via the third tuple element:
 
 ```elixir
-def say(_conn, request) do
+def say(request, _context) do
   metadata = %{
     response_headers: [{"x-request-id", "abc123"}],
     response_trailers: [{"x-checksum", "deadbeef"}]
@@ -186,7 +193,7 @@ Trailers are surfaced as `trailer-<name>` response headers for unary RPCs.
 
 ## Pipe Ordering
 
-`service` injects ConnectRPC's internal pipeline plugs (codec negotiation, validation, decoding).
+`service` injects ConnectRPC's internal pipeline plugs (context initialization, codec negotiation, validation, decoding).
 
 If you add `pipe_through` inside a `service` block, those plugs run after decoding and can access `conn.assigns.connect_rpc_request`.
 
@@ -220,7 +227,7 @@ Metadata includes `service`, `method`, `codec`, and `path`.
 ## Migrating from v0.1.x
 
 1. Remove service modules (`__connect_rpc_service__/0` is no longer used).
-2. Update handlers from `(request, conn)` to `(conn, request)`.
+2. Update handlers to `(request, context)`.
 3. Replace `forward ... ConnectRPC` with `use ConnectRPC.Router` and `service`/`rpc` routes.
 4. Move route-specific options (`codecs`, `read_body_opts`) to `service` options.
 

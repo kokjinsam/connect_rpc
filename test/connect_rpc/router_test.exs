@@ -26,7 +26,7 @@ defmodule ConnectRPC.RouterTest do
     @moduledoc false
     use ConnectRPC.Handler
 
-    def echo(_conn, request) do
+    def echo(request, _context) do
       {:ok, %EchoResponse{message: request.message}}
     end
   end

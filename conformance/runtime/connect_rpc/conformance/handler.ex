@@ -5,13 +5,14 @@ defmodule ConnectRPC.Conformance.Handler do
 
   alias Connectrpc.Conformance.V1
   alias Connectrpc.Conformance.V1.ConformancePayload
+  alias ConnectRPC.Context
   alias Google.Protobuf.Any
 
-  @spec unary(Plug.Conn.t(), V1.UnaryRequest.t()) ::
-          {:ok, V1.UnaryResponse.t(), keyword()}
-          | {:error, ConnectRPC.Error.t(), keyword()}
-  def unary(conn, %V1.UnaryRequest{} = request) do
-    request_info = build_request_info(conn, [pack_any(request)])
+  @spec unary(V1.UnaryRequest.t(), Context.t()) ::
+          {:ok, V1.UnaryResponse.t(), map()}
+          | {:error, ConnectRPC.Error.t(), map()}
+  def unary(%V1.UnaryRequest{} = request, %Context{} = context) do
+    request_info = build_request_info(context, [pack_any(request)])
 
     response_definition = request.response_definition
     response_metadata = response_metadata(response_definition)
@@ -122,10 +123,10 @@ defmodule ConnectRPC.Conformance.Handler do
   defp code_from_proto(:CODE_UNAUTHENTICATED), do: :unauthenticated
   defp code_from_proto(_), do: :unknown
 
-  defp build_request_info(conn, requests) do
+  defp build_request_info(%Context{} = context, requests) do
     %ConformancePayload.RequestInfo{
-      request_headers: grouped_headers(conn.req_headers),
-      timeout_ms: parse_timeout(conn),
+      request_headers: grouped_headers(Context.get(context, :req_headers, [])),
+      timeout_ms: Context.get(context, :timeout_ms),
       requests: requests
     }
   end
@@ -136,19 +137,6 @@ defmodule ConnectRPC.Conformance.Handler do
     |> Enum.map(fn {name, values} ->
       %V1.Header{name: name, value: values}
     end)
-  end
-
-  defp parse_timeout(conn) do
-    case Plug.Conn.get_req_header(conn, "connect-timeout-ms") do
-      [value | _rest] ->
-        case Integer.parse(value) do
-          {timeout_ms, ""} -> timeout_ms
-          _ -> nil
-        end
-
-      _ ->
-        nil
-    end
   end
 
   defp pack_any(%module{} = message) do

@@ -9,7 +9,7 @@ defmodule ConnectRPC do
       defmodule MyApp.GreetHandler do
         use ConnectRPC.Handler
 
-        def say(conn, %SayRequest{} = request) do
+        def say(%SayRequest{} = request, _context) do
           {:ok, %SayResponse{greeting: "Hello, \#{request.name}!"}}
         end
       end
